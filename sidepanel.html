@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto Refresh Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #81b622;
+        --success-color: #699913;
+        --danger-color: #e74c3c;
+        --warning-color: #f39c12;
+        --neutral-color: #7f8c8d;
+        --bg-color: #ffffff;
+        --card-bg: #f9f9f9;
+        --text-color: #2c3e50;
+        --border-radius: 12px;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        padding: 16px;
+        color: var(--text-color);
+        background-color: var(--bg-color);
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .app-title {
+        font-size: 18px;
+        font-weight: 500;
+        text-align: center;
+        margin-bottom: 16px;
+        color: var(--primary-color);
+        position: relative;
+        padding-bottom: 8px;
+      }
+
+      .app-title::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        height: 3px;
+        width: 40px;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        padding: 16px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+      }
+
+      .status-panel .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .status-active {
+        background-color: var(--success-color);
+        color: white;
+      }
+
+      .status-inactive {
+        background-color: var(--neutral-color);
+        color: white;
+      }
+
+      .counter-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .counter-icon {
+        font-size: 24px;
+        margin-right: 12px;
+        color: var(--primary-color);
+        width: 28px;
+        height: 28px;
+      }
+
+      .counter-icon svg {
+        filter: drop-shadow(0 1px 2px rgba(129, 182, 34, 0.3));
+      }
+
+      .counter {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+      }
+
+      .counter-label {
+        font-size: 12px;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .next-refresh-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .next-refresh {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-color);
+        width: 100%;
+      }
+
+      .timer-progress {
+        height: 6px;
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 3px;
+        margin-top: 8px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .timer-bar {
+        position: absolute;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--success-color)
+        );
+        left: 0;
+        width: 0%;
+        transition: width 0.5s linear;
+        border-radius: 3px;
+        box-shadow: 0 0 5px rgba(129, 182, 34, 0.5);
+      }
+
+      .timer-bar.pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 5px rgba(129, 182, 34, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 15px rgba(129, 182, 34, 0.8);
+        }
+        100% {
+          box-shadow: 0 0 5px rgba(129, 182, 34, 0.5);
+        }
+      }
+
+      .timer-label {
+        font-size: 12px;
+        color: var(--text-color);
+        margin-top: 4px;
+        text-align: right;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+      }
+
+      .settings-section {
+        margin-bottom: 16px;
+      }
+
+      .settings-title {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 12px;
+        color: var(--primary-color);
+      }
+
+      .settings-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(129, 182, 34, 0.2);
+      }
+
+      .mode-selector {
+        display: flex;
+        background-color: #e9e9e9;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        padding: 4px;
+      }
+
+      .mode-option {
+        flex: 1;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
+
+      .mode-option.active {
+        background-color: white;
+        box-shadow: var(--shadow);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 12px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-icon {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-success {
+        background: linear-gradient(
+          145deg,
+          var(--primary-color),
+          var(--success-color)
+        );
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-success::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.7s;
+      }
+
+      .btn-success:hover::before {
+        left: 100%;
+      }
+
+      .btn-danger {
+        background: linear-gradient(145deg, #e74c3c, #c0392b);
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-danger::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.7s;
+      }
+
+      .btn-danger:hover::before {
+        left: 100%;
+      }
+
+      .btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:hover .btn-icon svg {
+        transform: scale(1.1);
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon svg {
+        width: 100%;
+        height: 100%;
+        transition: transform 0.3s ease;
+      }
+
+      svg {
+        fill: currentColor;
+        stroke-width: 0;
+      }
+
+      /* Animation for refresh icon */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .updated .counter-icon svg {
+        animation: spin 0.5s ease-out;
+      }
+
+      /* Conditional refresh styles */
+      .condition-input {
+        margin-bottom: 8px;
+      }
+
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+      }
+
+      .checkbox-label {
+        font-size: 12px;
+        margin-left: 4px;
+      }
+
+      .time-range {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .time-range input {
+        flex: 1;
+      }
+
+      .hint-text {
+        font-size: 11px;
+        color: #666;
+        margin-top: 4px;
+        font-style: italic;
+      }
+
+      .sub-option {
+        margin-top: 8px;
+        margin-left: 16px;
+        padding-left: 8px;
+        border-left: 2px solid #ddd;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        margin: 2px;
+      }
+
+      .pill-primary {
+        background-color: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+      }
+
+      .pill-warning {
+        background-color: rgba(243, 156, 18, 0.15);
+        color: #d35400;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .mode-tab {
+        animation: fadeIn 0.3s ease;
+      }
+
+      /* Tab system */
+      .tab-content > div:not(.active) {
+        display: none;
+      }
+
+      .mode-option.active {
+        color: var(--primary-color);
+      }
+
+      /* Mode indicator */
+      .active-mode-indicator {
+        font-size: 11px;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .indicator-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--success-color);
+      }
+
+      .mode-display {
+        font-weight: 500;
+      }
+
+      /* Multimode selector */
+      .three-mode-selector {
+        display: flex;
+        background-color: #e9e9e9;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        padding: 3px;
+      }
+
+      .three-mode-selector .mode-option {
+        flex: 1;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
+
+      .settings-icon {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        cursor: pointer;
+        transition: transform 0.3s ease, filter 0.3s ease;
+        will-change: transform; /* Optimize for animations */
+      }
+
+      .settings-icon:hover {
+        transform: rotate(90deg);
+        filter: drop-shadow(0 0 3px var(--primary-color));
+      }
+
+      .settings-icon img {
+        transition: transform 0.3s ease;
+        backface-visibility: hidden; /* Prevent flickering during animation */
+      }
+
+      .settings-icon:hover img {
+        transform: scale(1.1);
+      }
+
+      .control-buttons {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="app-title">
+      Auto Refresh
+      <div id="settingsButton" class="settings-icon">
+        <img
+          src="icons/settings-gear.svg"
+          width="22"
+          height="22"
+          alt="Settings"
+        />
+      </div>
+    </h1>
+
+    <div class="card status-panel">
+      <div class="status-header">
+        <h3>Status</h3>
+        <span id="statusBadge" class="status-badge status-inactive"
+          >Inactive</span
+        >
+      </div>
+
+      <div class="counter-container">
+        <div class="counter-icon icon">
+          <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="none"
+          >
+            <path
+              d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.87 5.87 0 0 1 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"
+            />
+          </svg>
+        </div>
+        <div>
+          <div id="refreshCounter" class="counter">0</div>
+          <div class="counter-label">Total Refreshes</div>
+        </div>
+      </div>
+
+      <div class="next-refresh-container">
+        <div class="next-refresh-wrapper">
+          <div id="nextRefresh" class="next-refresh"></div>
+          <div class="timer-progress">
+            <div id="timerBar" class="timer-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Buttons -->
+      <div
+        class="control-buttons"
+        style="margin-top: 16px; display: flex; gap: 10px"
+      >
+        <button id="startRefresh" class="btn btn-success">
+          <div class="btn-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5 12H19M19 12L12 5M19 12L12 19"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          Start Auto Refresh
+        </button>
+        <button id="stopRefresh" class="btn btn-danger" style="display: none">
+          <div class="btn-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 6L18 18M6 18L18 6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          Stop Auto Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="settings-section">
+        <div class="settings-title">Refresh Mode</div>
+
+        <div class="three-mode-selector">
+          <div id="timeMode" class="mode-option active">Simple</div>
+          <div id="conditionalMode" class="mode-option">Conditional</div>
+          <div id="smartMode" class="mode-option">Smart</div>
+        </div>
+
+        <div class="tab-content">
+          <!-- Simple Time-based Mode -->
+          <div id="timeSettings" class="settings-group mode-tab active">
+            <div class="form-group">
+              <label for="refreshInterval">Refresh Interval:</label>
+              <div style="display: flex; gap: 8px">
+                <input
+                  type="number"
+                  id="refreshInterval"
+                  class="input-field"
+                  min="1"
+                  value="30"
+                  style="flex: 1"
+                />
+                <select id="timeUnit" class="input-field" style="width: 120px">
+                  <option value="milliseconds">Milliseconds</option>
+                  <option value="seconds" selected>Seconds</option>
+                  <option value="minutes">Minutes</option>
+                  <option value="hours">Hours</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conditional Refresh Mode -->
+          <div id="conditionalSettings" class="settings-group mode-tab hidden">
+            <div class="form-group">
+              <label for="refreshInterval_conditional"
+                >Base Refresh Interval:</label
+              >
+              <div style="display: flex; gap: 8px">
+                <input
+                  type="number"
+                  id="refreshInterval_conditional"
+                  class="input-field"
+                  min="1"
+                  value="15"
+                  style="flex: 1"
+                />
+                <select
+                  id="refreshIntervalUnit_conditional"
+                  class="input-field"
+                  style="width: 120px"
+                >
+                  <option value="milliseconds">Milliseconds</option>
+                  <option value="seconds" selected>Seconds</option>
+                  <option value="minutes">Minutes</option>
+                  <option value="hours">Hours</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Refresh Condition:</label>
+              <select id="conditionType" class="input-field">
+                <option value="containsText">Page contains text</option>
+                <option value="notContainsText">
+                  Page does not contain text
+                </option>
+                <option value="textChanged">Text has changed</option>
+              </select>
+            </div>
+            <div class="form-group condition-input">
+              <input
+                type="text"
+                id="conditionValue"
+                class="input-field"
+                placeholder="Enter text to monitor"
+              />
+              <div class="hint-text">
+                Case-insensitive search in the page content
+              </div>
+            </div>
+            <div class="form-group" id="monitorSelectorContainer">
+              <label for="monitorSelector"
+                >Target Element Selector (optional):</label
+              >
+              <input
+                type="text"
+                id="monitorSelector"
+                class="input-field"
+                placeholder="e.g., #content, .price (leave empty for whole page)"
+              />
+              <div class="hint-text">
+                Limit monitoring to a specific element
+              </div>
+            </div>
+          </div>
+
+          <!-- Smart Refresh Mode -->
+          <div id="smartSettings" class="settings-group mode-tab hidden">
+            <div class="form-group">
+              <label for="refreshInterval_smart">Base Refresh Interval:</label>
+              <div style="display: flex; gap: 8px">
+                <input
+                  type="number"
+                  id="refreshInterval_smart"
+                  class="input-field"
+                  min="1"
+                  value="30"
+                  style="flex: 1"
+                />
+                <select
+                  id="refreshIntervalUnit_smart"
+                  class="input-field"
+                  style="width: 120px"
+                >
+                  <option value="milliseconds">Milliseconds</option>
+                  <option value="seconds" selected>Seconds</option>
+                  <option value="minutes">Minutes</option>
+                  <option value="hours">Hours</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Active Days:</label>
+              <div class="checkbox-group">
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_mon" checked />
+                  <label class="checkbox-label" for="day_mon">Mon</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_tue" checked />
+                  <label class="checkbox-label" for="day_tue">Tue</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_wed" checked />
+                  <label class="checkbox-label" for="day_wed">Wed</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_thu" checked />
+                  <label class="checkbox-label" for="day_thu">Thu</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_fri" checked />
+                  <label class="checkbox-label" for="day_fri">Fri</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_sat" checked />
+                  <label class="checkbox-label" for="day_sat">Sat</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" id="day_sun" checked />
+                  <label class="checkbox-label" for="day_sun">Sun</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="timeRangeEnabled">
+                <input type="checkbox" id="timeRangeEnabled" />
+                Only refresh during specific hours
+              </label>
+
+              <div id="timeRangeContainer" class="sub-option hidden">
+                <div class="time-range">
+                  <input
+                    type="time"
+                    id="timeRangeStart"
+                    value="09:00"
+                    class="input-field"
+                  />
+                  <span>to</span>
+                  <input
+                    type="time"
+                    id="timeRangeEnd"
+                    value="17:00"
+                    class="input-field"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

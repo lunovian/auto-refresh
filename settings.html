@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto Refresh Settings</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        width: 400px;
+        padding: 16px;
+        margin: 0;
+      }
+      h1 {
+        margin-top: 0;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+      }
+      h1 svg {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+      }
+      .settings-group {
+        margin-bottom: 20px;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      .settings-item {
+        margin-bottom: 12px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="checkbox"] {
+        margin-right: 5px;
+      }
+      input[type="number"] {
+        width: 60px;
+      }
+      select,
+      input[type="text"] {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: #3367d6;
+      }
+      button.secondary {
+        background-color: #f1f1f1;
+        color: #333;
+      }
+      button.secondary:hover {
+        background-color: #e0e0e0;
+      }
+      .button-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+      .status {
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 4px;
+        display: none;
+      }
+      .status.success {
+        display: block;
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .status.error {
+        display: block;
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        text-decoration: none;
+        color: #4285f4;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="popup.html" class="back-link">← Back to Auto Refresh</a>
+
+    <h1>
+      <img
+        src="icons/settings-gear.svg"
+        width="24px"
+        height="24px"
+        alt="Settings"
+        style="margin-right: 8px"
+      />
+      Auto Refresh Settings
+    </h1>
+
+    <div class="settings-group">
+      <h2>General Settings</h2>
+
+      <div class="settings-item">
+        <label>
+          <input type="checkbox" id="showNotifications" />
+          Show notifications when auto-refresh is active
+        </label>
+      </div>
+
+      <div class="settings-item">
+        <label>
+          <input type="checkbox" id="confirmRefresh" />
+          Ask for confirmation before refreshing pages with form data
+        </label>
+      </div>
+
+      <div class="settings-item">
+        <label>Default Refresh Interval (seconds)</label>
+        <input type="number" id="defaultInterval" min="1" value="30" />
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h2>Advanced Settings</h2>
+
+      <div class="settings-item">
+        <label>
+          <input type="checkbox" id="enableResourceMonitoring" />
+          Enable CSS/JS resource monitoring by default
+        </label>
+      </div>
+
+      <div class="settings-item">
+        <label>Resource Check Interval (seconds)</label>
+        <input type="number" id="resourceCheckInterval" min="1" value="5" />
+      </div>
+
+      <div class="settings-item">
+        <label>
+          <input type="checkbox" id="startupRefreshMode" />
+          Remember refresh mode for each tab
+        </label>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button id="resetButton" class="secondary">Reset to Defaults</button>
+      <button id="saveButton">Save Settings</button>
+    </div>
+
+    <div id="statusMessage" class="status"></div>
+
+    <script src="settings.js"></script>
+  </body>
+</html>
