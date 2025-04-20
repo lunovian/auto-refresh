@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -29,7 +29,12 @@
       }
 
       body {
-        font-family: "Roboto", sans-serif;
+        font-family: "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
+          "Noto Sans Arabic", "Noto Sans Thai", "Noto Sans Hebrew",
+          "Noto Sans Devanagari", "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
         padding: 16px;
         color: var(--text-color);
         background-color: var(--bg-color);
@@ -39,7 +44,7 @@
 
       .app-title {
         font-size: 18px;
-        font-weight: 500;
+        font-weight: 600;
         text-align: center;
         margin-bottom: 16px;
         color: var(--primary-color);
@@ -129,6 +134,14 @@
       .next-refresh-container {
         display: flex;
         align-items: center;
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .next-refresh-wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
       }
 
       .next-refresh {
@@ -147,6 +160,7 @@
         overflow: hidden;
         position: relative;
         box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        flex-grow: 1;
       }
 
       .timer-bar {
@@ -398,19 +412,41 @@
 
       .checkbox-group {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-        margin-top: 8px;
+        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
       }
 
       .checkbox-wrapper {
         display: flex;
         align-items: center;
+        background-color: #f1f1f1;
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .checkbox-wrapper:hover {
+        background-color: #e8e8e8;
+      }
+
+      .checkbox-wrapper input[type="checkbox"] {
+        margin-right: 6px;
+        accent-color: var(--primary-color);
       }
 
       .checkbox-label {
         font-size: 12px;
+        font-weight: 500;
         margin-left: 4px;
+        flex: 1;
+        text-align: center;
+      }
+
+      /* Custom checkbox styling */
+      .checkbox-wrapper input[type="checkbox"]:checked + .checkbox-label {
+        color: var(--primary-color);
       }
 
       .time-range {
@@ -446,8 +482,13 @@
       }
 
       .pill-primary {
-        background-color: rgba(52, 152, 219, 0.15);
-        color: #2980b9;
+        background-color: rgba(
+          129,
+          182,
+          34,
+          0.15
+        ); /* Using primary-color with opacity */
+        color: #699913; /* Using success-color for text */
       }
 
       .pill-warning {
@@ -547,7 +588,64 @@
         display: flex;
         gap: 10px;
       }
+
+      /* Remove underline from Buy Me A Coffee button */
+      #bmc-button {
+        text-decoration: none;
+      }
+
+      /* Tab info display styles */
+      .tab-info-container {
+        margin-bottom: 12px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .tab-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .favicon-container {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        border-radius: 3px;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .tab-details {
+        flex-grow: 1;
+        overflow: hidden;
+      }
+
+      .tab-title {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-color);
+      }
+
+      .tab-url {
+        font-size: 11px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+      }
     </style>
+    <!-- Remove translations.js reference -->
+    <!-- <script src="translations.js"></script> -->
+    <!-- Add resource checker script -->
+    <script src="resource-checker.js"></script>
   </head>
   <body>
     <h1 class="app-title">
@@ -565,9 +663,28 @@
     <div class="card status-panel">
       <div class="status-header">
         <h3>Status</h3>
-        <span id="statusBadge" class="status-badge status-inactive"
-          >Inactive</span
-        >
+        <span id="statusBadge" class="status-badge status-inactive">
+          Inactive
+        </span>
+      </div>
+
+      <!-- Add tab info display section -->
+      <div id="tabInfoContainer" class="tab-info-container">
+        <div class="tab-info">
+          <div class="favicon-container">
+            <img
+              id="tabFavicon"
+              src="icons/icon16.png"
+              width="16"
+              height="16"
+              alt="Favicon"
+            />
+          </div>
+          <div class="tab-details">
+            <div id="tabTitle" class="tab-title">No active page</div>
+            <div id="tabUrl" class="tab-url">Select a page to auto-refresh</div>
+          </div>
+        </div>
       </div>
 
       <div class="counter-container">
@@ -598,10 +715,7 @@
       </div>
 
       <!-- Control Buttons -->
-      <div
-        class="control-buttons"
-        style="margin-top: 16px; display: flex; gap: 10px"
-      >
+      <div class="control-buttons">
         <button id="startRefresh" class="btn btn-success">
           <div class="btn-icon">
             <svg
@@ -618,7 +732,7 @@
               />
             </svg>
           </div>
-          Start Auto Refresh
+          <span>Start Auto Refresh</span>
         </button>
         <button id="stopRefresh" class="btn btn-danger" style="display: none">
           <div class="btn-icon">
@@ -636,7 +750,7 @@
               />
             </svg>
           </div>
-          Stop Auto Refresh
+          <span>Stop Auto Refresh</span>
         </button>
       </div>
     </div>
@@ -648,7 +762,6 @@
         <div class="three-mode-selector">
           <div id="timeMode" class="mode-option active">Simple</div>
           <div id="conditionalMode" class="mode-option">Conditional</div>
-          <div id="smartMode" class="mode-option">Smart</div>
         </div>
 
         <div class="tab-content">
@@ -738,96 +851,64 @@
               </div>
             </div>
           </div>
-
-          <!-- Smart Refresh Mode -->
-          <div id="smartSettings" class="settings-group mode-tab hidden">
-            <div class="form-group">
-              <label for="refreshInterval_smart">Base Refresh Interval:</label>
-              <div style="display: flex; gap: 8px">
-                <input
-                  type="number"
-                  id="refreshInterval_smart"
-                  class="input-field"
-                  min="1"
-                  value="30"
-                  style="flex: 1"
-                />
-                <select
-                  id="refreshIntervalUnit_smart"
-                  class="input-field"
-                  style="width: 120px"
-                >
-                  <option value="milliseconds">Milliseconds</option>
-                  <option value="seconds" selected>Seconds</option>
-                  <option value="minutes">Minutes</option>
-                  <option value="hours">Hours</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Active Days:</label>
-              <div class="checkbox-group">
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_mon" checked />
-                  <label class="checkbox-label" for="day_mon">Mon</label>
-                </div>
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_tue" checked />
-                  <label class="checkbox-label" for="day_tue">Tue</label>
-                </div>
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_wed" checked />
-                  <label class="checkbox-label" for="day_wed">Wed</label>
-                </div>
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_thu" checked />
-                  <label class="checkbox-label" for="day_thu">Thu</label>
-                </div>
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_fri" checked />
-                  <label class="checkbox-label" for="day_fri">Fri</label>
-                </div>
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_sat" checked />
-                  <label class="checkbox-label" for="day_sat">Sat</label>
-                </div>
-                <div class="checkbox-wrapper">
-                  <input type="checkbox" id="day_sun" checked />
-                  <label class="checkbox-label" for="day_sun">Sun</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="timeRangeEnabled">
-                <input type="checkbox" id="timeRangeEnabled" />
-                Only refresh during specific hours
-              </label>
-
-              <div id="timeRangeContainer" class="sub-option hidden">
-                <div class="time-range">
-                  <input
-                    type="time"
-                    id="timeRangeStart"
-                    value="09:00"
-                    class="input-field"
-                  />
-                  <span>to</span>
-                  <input
-                    type="time"
-                    id="timeRangeEnd"
-                    value="17:00"
-                    class="input-field"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
 
+    <!-- Support development section -->
+    <div
+      id="support-dev"
+      class="card"
+      style="
+        background-color: #f5faf0;
+        border-left: 4px solid var(--primary-color);
+      "
+    >
+      <div style="display: flex; align-items: center; gap: 12px">
+        <div style="flex-grow: 1">
+          <h3 style="font-size: 15px; margin-bottom: 4px">
+            Support Development
+          </h3>
+          <p style="font-size: 13px; color: #666">
+            If you find Auto Refresh helpful, consider buying me a coffee!
+          </p>
+        </div>
+        <a
+          id="bmc-button"
+          href="https://www.buymeacoffee.com/nxan2911i"
+          target="_blank"
+          class="btn btn-primary"
+          style="
+            width: auto;
+            margin: 0;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+          "
+        >
+          <img
+            src="icons/coffee-cup.svg"
+            width="20"
+            height="20"
+            style="margin-right: 8px"
+            alt="Coffee cup"
+          />
+          <span>Buy me a coffee</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Add legal links -->
+    <div class="legal-links">
+      <a href="terms.html" target="_blank">Terms</a> |
+      <a href="privacy.html" target="_blank">Privacy</a> |
+      <a href="refund.html" target="_blank">Refunds</a>
+    </div>
+
+    <link rel="stylesheet" href="ad-styles.css" />
     <script src="sidepanel.js"></script>
+    <!-- Remove translations.js reference -->
+    <!-- <script src="translations.js"></script> -->
+    <script type="module" src="monetization.js"></script>
   </body>
 </html>

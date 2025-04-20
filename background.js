@@ -2,6 +2,19 @@ const refreshStates = new Map();
 const refreshCounts = new Map();
 const countdownTimers = new Map();
 
+// Default settings values (duplicated from settings.js for persistence)
+const DEFAULT_SETTINGS = {
+  showNotifications: true,
+  confirmRefresh: true,
+  defaultInterval: 30,
+  enableResourceMonitoring: false,
+  resourceCheckInterval: 5,
+  startupRefreshMode: true,
+  language: 'en',
+  enableSoundEffects: true,  // Add sound effects setting with default=true
+  enableTickingSound: true  // Add ticking sound setting (default true)
+};
+
 // Function to calculate remaining time for countdown display
 function getRemainingTime(tabId) {
   const timerData = countdownTimers.get(tabId);
@@ -36,7 +49,8 @@ function startCountdownTimer(tabId, intervalMs, unit) {
   countdownTimers.set(tabId, {
     endTime: endTime,
     totalSeconds: totalSeconds,
-    unit: unit
+    totalInterval: intervalMs, // Add this field to store the original interval
+    unit: unit || 'seconds' // Ensure unit has a default value
   });
   
   // Save to persistent storage
@@ -44,7 +58,8 @@ function startCountdownTimer(tabId, intervalMs, unit) {
     ['countdown_' + tabId]: {
       endTime: endTime,
       totalSeconds: totalSeconds,
-      unit: unit
+      totalInterval: intervalMs,
+      unit: unit || 'seconds'
     }
   });
 }
@@ -58,11 +73,12 @@ function incrementRefreshCount(tabId) {
   // Store count in persistent storage
   chrome.storage.local.set({ ['refreshCount_' + tabId]: newCount });
   
-  // Notify popup about the update
+  // Notify popup about the update - include a flag to play a sound if needed
   chrome.runtime.sendMessage({
     action: 'updateRefreshCount',
     count: newCount,
-    tabId: tabId
+    tabId: tabId,
+    playSound: true  // Add this flag so the UI can play a sound if needed
   });
 
   // Reset the countdown timer after refresh
@@ -74,10 +90,52 @@ function resetCountdownTimer(tabId) {
   const timerInfo = countdownTimers.get(tabId);
   if (!timerInfo) return;
   
-  // Recalculate next refresh time
-  const nextRefreshTime = Date.now() + timerInfo.totalInterval;
-  timerInfo.nextRefreshTime = nextRefreshTime;
-  countdownTimers.set(tabId, timerInfo);
+  // Calculate next refresh time - add a small buffer of 100ms to avoid edge cases
+  const nextRefreshTime = Date.now() + timerInfo.totalInterval + 100;
+  
+  // Create a completely new timer object with the original interval
+  const newTimerInfo = {
+    endTime: nextRefreshTime,
+    totalSeconds: Math.ceil(timerInfo.totalInterval / 1000),
+    totalInterval: timerInfo.totalInterval,
+    unit: timerInfo.unit
+  };
+  
+  // Update the countdown timer with the new object
+  countdownTimers.set(tabId, newTimerInfo);
+  
+  // Update in storage as well
+  chrome.storage.local.set({
+    ['countdown_' + tabId]: newTimerInfo
+  });
+  
+  // Ensure messages are properly sent with proper delay
+  setTimeout(() => {
+    // Send a message to update the countdown in the UI
+    const timerData = getRemainingTime(tabId);
+    
+    chrome.runtime.sendMessage({
+      action: "timerReset",
+      tabId: tabId,
+      nextRefresh: nextRefreshTime,
+      timerInfo: timerData,
+      timestamp: Date.now()
+    });
+    
+    console.log("Timer reset for tab", tabId, "New end time:", new Date(nextRefreshTime).toISOString());
+  }, 200);
+}
+
+// Function to stop refresh for a tab
+function stopRefreshForTab(tabId) {
+  const state = refreshStates.get(tabId);
+  if (state) {
+    if (state.type === 'time' || state.type === 'conditional' || state.type === 'smart') {
+      clearInterval(state.interval);
+    }
+    refreshStates.delete(tabId);
+  }
+  // Don't delete the countdown timer here as popup might still need it
 }
 
 // Function to show notification and ask user if they want to continue
@@ -201,45 +259,116 @@ async function checkConditionalRefresh(tabId, settings) {
   }
 }
 
-// Check if current time meets the smart scheduling criteria
-function checkSmartScheduling(settings) {
-  const now = new Date();
-  const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  const currentDay = days[dayOfWeek];
-  
-  // Check if activeDays exists and if current day is enabled
-  if (!settings.activeDays || !settings.activeDays[currentDay]) {
-    return { 
-      shouldRefresh: false, 
-      reason: `Current day (${currentDay}) is not in active days schedule` 
-    };
-  }
-  
-  // Check time range if enabled
-  if (settings.timeRangeEnabled) {
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const currentTime = currentHour * 60 + currentMinute; // Convert to minutes since midnight
-    
-    const [startHour, startMinute] = settings.startTime.split(':').map(Number);
-    const [endHour, endMinute] = settings.endTime.split(':').map(Number);
-    
-    const startTimeMinutes = startHour * 60 + startMinute;
-    const endTimeMinutes = endHour * 60 + endMinute;
-    
-    if (currentTime < startTimeMinutes || currentTime > endTimeMinutes) {
-      return { 
-        shouldRefresh: false, 
-        reason: `Current time (${now.toLocaleTimeString()}) is outside active hours (${settings.startTime}-${settings.endTime})` 
-      };
+// Function to apply new settings to already active refresh processes
+function applyNewSettingsToActiveRefreshes(newSettings) {
+  // For each active refresh, apply relevant settings that can be changed without restart
+  refreshStates.forEach((state, tabId) => {
+    // Update form protection setting if it changed
+    if (state.settings.formProtection !== newSettings.confirmRefresh) {
+      state.settings.formProtection = newSettings.confirmRefresh;
+      
+      // Also update in content script if active
+      chrome.tabs.sendMessage(tabId, {
+        action: newSettings.confirmRefresh ? 'enableFormProtection' : 'disableFormProtection'
+      }).catch(() => {
+        // Silently fail if content script isn't ready yet
+      });
     }
-  }
-  
-  // All criteria met
-  return { shouldRefresh: true, reason: "Smart scheduling criteria met" };
+    
+    // Update resource monitoring settings if they changed
+    if (state.settings.enableResourceMonitoring !== newSettings.enableResourceMonitoring) {
+      state.settings.enableResourceMonitoring = newSettings.enableResourceMonitoring;
+      
+      // Update in content script
+      if (newSettings.enableResourceMonitoring) {
+        chrome.tabs.sendMessage(tabId, {
+          action: 'startResourceMonitoring',
+          interval: newSettings.resourceCheckInterval
+        }).catch(() => {
+          // Silently fail if content script isn't ready yet
+        });
+      } else {
+        chrome.tabs.sendMessage(tabId, {
+          action: 'stopResourceMonitoring'
+        }).catch(() => {
+          // Silently fail if content script isn't ready yet
+        });
+      }
+    }
+    
+    // Save updated state
+    refreshStates.set(tabId, state);
+  });
 }
 
+// Function to save important state before extension reload
+function saveStateBeforeReload() {
+  // Convert Map to Object for storage
+  const refreshStatesObj = {};
+  refreshStates.forEach((value, key) => {
+    refreshStatesObj[key] = {
+      type: value.type,
+      settings: value.settings,
+      // Don't store the interval as it will be invalid after reload
+      // Will be recreated on extension reload
+    };
+  });
+  
+  const refreshCountsObj = {};
+  refreshCounts.forEach((value, key) => {
+    refreshCountsObj[key] = value;
+  });
+  
+  // Save to local storage for restoration after reload
+  chrome.storage.local.set({
+    '_refreshStatesBeforeReload': refreshStatesObj,
+    '_refreshCountsBeforeReload': refreshCountsObj
+  });
+}
+
+// Function to restore state after extension reload
+function restoreStateAfterReload() {
+  chrome.storage.local.get(['_refreshStatesBeforeReload', '_refreshCountsBeforeReload'], (result) => {
+    const states = result._refreshStatesBeforeReload;
+    const counts = result._refreshCountsBeforeReload;
+    
+    // Restore refresh counts
+    if (counts) {
+      Object.entries(counts).forEach(([tabId, count]) => {
+        refreshCounts.set(parseInt(tabId), count);
+      });
+    }
+    
+    // Restore active refresh states
+    if (states) {
+      Object.entries(states).forEach(([tabId, state]) => {
+        const numTabId = parseInt(tabId);
+        
+        // Verify the tab still exists
+        chrome.tabs.get(numTabId).then(tab => {
+          // Tab exists, try to restore refresh state
+          const settings = state.settings;
+          
+          // Use the message system to restart auto refresh with saved settings
+          chrome.runtime.sendMessage({
+            action: 'startAutoRefresh',
+            tabId: numTabId,
+            mode: state.type,
+            settings: settings
+          });
+        }).catch(() => {
+          // Tab no longer exists, skip restoration
+          console.log(`Tab ${tabId} no longer exists, skipping refresh state restoration.`);
+        });
+      });
+    }
+    
+    // Clean up the temporary storage
+    chrome.storage.local.remove(['_refreshStatesBeforeReload', '_refreshCountsBeforeReload']);
+  });
+}
+
+// Main message handler
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { action, tabId, mode, settings } = message;
 
@@ -264,6 +393,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           // Refresh the tab
           await chrome.tabs.reload(tabId);
           incrementRefreshCount(tabId);
+          
+          // No direct audio playback from service worker
+          // Instead, the UI will handle sound effects via the updateRefreshCount message
           
           // Check if we should continue iteration
           const state = refreshStates.get(tabId);
@@ -292,7 +424,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       
       // Start countdown timer for time-based refresh
-      startCountdownTimer(tabId, settings.interval * 1000, settings.intervalUnit);
+      startCountdownTimer(tabId, settings.interval * 1000, settings.unit);
       
       sendResponse({ success: true });
     } 
@@ -345,64 +477,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         settings: settings
       });
       
-      sendResponse({ success: true });
-    }
-    else if (mode === 'smart') {
-      // Smart scheduling - checks both time and day constraints
-      
-      // Function to perform the smart refresh check
-      const performSmartRefreshCheck = async () => {
-        try {
-          // Check if tab still exists
-          const tab = await chrome.tabs.get(tabId);
-          
-          // Check if current time meets scheduling criteria
-          const result = checkSmartScheduling(settings);
-          
-          // Update popup with latest scheduling status
-          chrome.runtime.sendMessage({
-            action: 'smartScheduleStatus',
-            result: result,
-            tabId: tabId
-          });
-          
-          // Only refresh if criteria are met
-          if (result.shouldRefresh) {
-            await chrome.tabs.reload(tabId);
-            incrementRefreshCount(tabId);
-            
-            // Check if we should continue iteration
-            const state = refreshStates.get(tabId);
-            if (state?.settings?.continueIteration) {
-              const shouldContinue = await askToContinueIteration(tabId);
-              if (!shouldContinue) {
-                stopRefreshForTab(tabId);
-                chrome.storage.local.set({ ['isActive_' + tabId]: false });
-                // Notify popup that auto-refresh has been stopped
-                chrome.runtime.sendMessage({
-                  action: 'autoRefreshStopped',
-                  tabId: tabId
-                });
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Error in smart refresh check:", error);
-          stopRefreshForTab(tabId);
-        }
-      };
-      
-      // Perform an immediate check when starting
-      performSmartRefreshCheck();
-      
-      // Set up the interval for future checks
-      const interval = setInterval(performSmartRefreshCheck, settings.interval * 1000);
-      
-      refreshStates.set(tabId, {
-        type: 'smart',
-        interval: interval,
-        settings: settings
-      });
+      // Start countdown timer for conditional refresh
+      startCountdownTimer(tabId, settings.interval * 1000, settings.unit || 'seconds');
       
       sendResponse({ success: true });
     }
@@ -432,46 +508,58 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   else if (action === 'getCountdownInfo') {
     const timerInfo = getRemainingTime(tabId);
-    sendResponse({ timerInfo: timerInfo });
+    const timer = countdownTimers.get(tabId);
+    const now = Date.now();
+    
+    // Log timer state for debugging
+    console.log(`getCountdownInfo for tab ${tabId}:`, {
+      remaining: timerInfo.remaining,
+      endTime: timer?.endTime ? new Date(timer.endTime).toISOString() : null,
+      now: new Date(now).toISOString(),
+      diff: timer?.endTime ? (timer.endTime - now) / 1000 : null
+    });
+    
+    sendResponse({ 
+      timerInfo: timerInfo,
+      debugInfo: {
+        currentTime: now,
+        endTime: timer?.endTime,
+        hasTimer: !!timer
+      }
+    });
     return false; // No async response needed
+  }
+  else if (action === 'settingsUpdated') {
+    // Apply new settings to active refreshes if needed
+    applyNewSettingsToActiveRefreshes(message.settings);
+    
+    if (message.reload) {
+      // Save any important state before reload
+      saveStateBeforeReload();
+      
+      // The actual reload will be handled by the settings.js file
+      sendResponse({ success: true });
+    }
+    return true;
   }
   
   return false; // Default: no async response needed
 });
 
-// Listen for messages from popup and content scripts
+// Additional message handler for other extension communication
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle settings page opening
   if (message.action === 'openSettingsPage') {
-    chrome.tabs.create({ url: 'settings.html' });
-    return false;
+    // Use navigateTo instead of create when possible
+    if (sender.tab) {
+      chrome.tabs.update(sender.tab.id, { url: 'settings.html' });
+    } else {
+      chrome.tabs.create({ url: 'settings.html' });
+    }
+    sendResponse({ success: true });
+    return true; // Keep the message channel open
   }
   
-  // Handle refresh state requests
-  if (message.action === 'getRefreshState') {
-    const tabId = message.tabId;
-    const state = refreshStates.get(tabId) || { active: false };
-    const count = refreshCounts.get(tabId) || 0;
-    const timerInfo = getRemainingTime(tabId);
-    
-    sendResponse({ 
-      active: !!state,
-      mode: state?.type || 'none',
-      count: count,
-      settings: state?.settings,
-      timerInfo: timerInfo
-    });
-    return false;
-  }
-  
-  // Handle countdown timer info requests
-  else if (message.action === 'getCountdownInfo') {
-    const tabId = message.tabId;
-    const timerInfo = getRemainingTime(tabId);
-    sendResponse({ timerInfo: timerInfo });
-    return false;
-  }
-
   // Handle content script state requests
   else if (message.action === 'getContentScriptState') {
     // Get tab information from sender if available
@@ -507,22 +595,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         settings: state.settings
       });
       
-      // Start timer if using time-based refresh
-      if (state.mode === 'time') {
-        const interval = calculateInterval(state.settings.interval, state.settings.intervalUnit);
-        startCountdownTimer(tabId, interval, state.settings.intervalUnit);
-        
-        // Start the actual refresh timer
-        startRefreshTimer(tabId, interval, state.settings);
-      }
-      // Handle conditional refresh
-      else if (state.mode === 'conditional') {
-        startConditionalRefresh(tabId, state.settings);
-      }
-      // Handle smart scheduling
-      else if (state.mode === 'smart') {
-        checkAndStartSmartRefresh(tabId, state.settings);
-      }
+      // Use the proper message to start the refresh
+      chrome.runtime.sendMessage({
+        action: 'startAutoRefresh',
+        tabId: tabId,
+        mode: state.mode,
+        settings: state.settings
+      });
       
       sendResponse({ success: true });
     } else {
@@ -562,21 +641,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     return false; // No async response needed
   }
+
+  // Handle getting tab information
+  else if (message.action === 'getTabInfo') {
+    const tabId = message.tabId;
+    
+    if (!tabId) {
+      sendResponse({ success: false, error: "No tab ID provided" });
+      return false;
+    }
+    
+    chrome.tabs.get(tabId, (tab) => {
+      if (chrome.runtime.lastError) {
+        sendResponse({ 
+          success: false, 
+          error: chrome.runtime.lastError.message 
+        });
+      } else {
+        sendResponse({
+          success: true,
+          tab: {
+            id: tab.id,
+            title: tab.title,
+            url: tab.url,
+            favIconUrl: tab.favIconUrl
+          }
+        });
+      }
+    });
+    
+    return true; // Keep the message channel open for the async response
+  }
   
   return false; // Default: no async response needed
 });
-
-// Function to stop refresh for a tab
-function stopRefreshForTab(tabId) {
-  const state = refreshStates.get(tabId);
-  if (state) {
-    if (state.type === 'time' || state.type === 'conditional' || state.type === 'smart') {
-      clearInterval(state.interval);
-    }
-    refreshStates.delete(tabId);
-  }
-  // Don't delete the countdown timer here as popup might still need it
-}
 
 // Handle extension icon clicks - open the sidebar
 chrome.action.onClicked.addListener((tab) => {
@@ -587,131 +685,6 @@ chrome.action.onClicked.addListener((tab) => {
   if (chrome.sidePanel.setPanelBehavior) {
     chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   }
-});
-
-// Handle messages for opening settings
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'openSettingsPage') {
-    chrome.tabs.create({ url: 'settings.html' });
-    return false;
-  }
-  
-  // Existing message handlers
-  if (message.action === 'getRefreshState') {
-    const tabId = message.tabId;
-    const state = refreshStates.get(tabId) || { active: false };
-    const count = refreshCounts.get(tabId) || 0;
-    
-    sendResponse({ 
-      active: state.active, 
-      mode: state.mode,
-      settings: state.settings,
-      count: count
-    });
-    return false; // No async response needed
-  }
-  
-  // Handle countdown timer info requests - added for persistent timer
-  else if (message.action === 'getCountdownInfo') {
-    const tabId = message.tabId;
-    const timerInfo = getRemainingTime(tabId);
-    
-    sendResponse({ timerInfo });
-    return false; // No async response needed
-  }
-
-  // Handle content script state requests
-  else if (message.action === 'getContentScriptState') {
-    // Get tab information from sender if available
-    const tabId = sender.tab?.id;
-    if (!tabId) {
-      sendResponse({ error: "No tab ID associated with this request" });
-      return false; // No async response needed
-    }
-    
-    // Get the refresh state for this tab
-    const state = refreshStates.get(tabId);
-    
-    // Return relevant content script state information
-    sendResponse({
-      resourceMonitoring: state?.settings?.enableResourceMonitoring || false,
-      monitoredResources: state?.settings?.monitoredResources || [],
-      formProtection: state?.settings?.formProtection || false
-    });
-    
-    return false; // No async response needed
-  }
-
-  // Handle setting new refresh state
-  else if (message.action === 'setRefreshState') {
-    const tabId = message.tabId;
-    const state = message.state;
-    
-    if (state.active) {
-      // Store refresh state
-      refreshStates.set(tabId, {
-        active: true,
-        mode: state.mode,
-        settings: state.settings
-      });
-      
-      // Start timer if using time-based refresh
-      if (state.mode === 'time') {
-        const interval = calculateInterval(state.settings.interval, state.settings.intervalUnit);
-        startCountdownTimer(tabId, interval, state.settings.intervalUnit);
-        
-        // Start the actual refresh timer
-        startRefreshTimer(tabId, interval, state.settings);
-      }
-      // Handle conditional refresh
-      else if (state.mode === 'conditional') {
-        startConditionalRefresh(tabId, state.settings);
-      }
-      // Handle smart scheduling
-      else if (state.mode === 'smart') {
-        checkAndStartSmartRefresh(tabId, state.settings);
-      }
-      
-      sendResponse({ success: true });
-    } else {
-      // Stop refresh for this tab
-      stopRefreshForTab(tabId);
-      sendResponse({ success: true });
-    }
-    return false; // No async response needed
-  }
-  
-  // Handle reset refresh count request
-  else if (message.action === 'resetRefreshCount') {
-    const tabId = message.tabId;
-    refreshCounts.set(tabId, 0);
-    
-    // Clear from persistent storage too
-    chrome.storage.local.remove('refreshCount_' + tabId);
-    
-    sendResponse({ success: true, count: 0 });
-    return false; // No async response needed
-  }
-
-  // Handle updating the continue iteration setting
-  else if (message.action === 'updateIterationSetting') {
-    const tabId = message.tabId;
-    const state = refreshStates.get(tabId);
-    
-    if (state) {
-      // Update the setting in the refresh state
-      state.settings.continueIteration = message.continueIteration;
-      refreshStates.set(tabId, state);
-      
-      // Acknowledge success
-      sendResponse({ success: true });
-    } else {
-      sendResponse({ success: false, reason: "No active refresh for this tab" });
-    }
-    return false; // No async response needed
-  }
-  
-  return false; // Default: no async response needed
 });
 
 // When a tab is updated (e.g., navigated to a new URL)
@@ -733,8 +706,47 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+// Listen for extension installation or update
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'update' || details.reason === 'install') {
+    // For fresh installs, set default settings
+    if (details.reason === 'install') {
+      chrome.storage.sync.set({ 'autoRefreshSettings': DEFAULT_SETTINGS });
+    }
+  }
+  
+  // After an update or browser restart, try to restore previous state
+  restoreStateAfterReload();
+});
+
 // Clean up when tab is closed
 chrome.tabs.onRemoved.addListener((tabId) => {
   stopRefreshForTab(tabId);
   refreshCounts.delete(tabId);
+});
+
+// Add this function to reset all timers if needed
+function forceRefreshAllTimers() {
+  for (const [tabId, timerInfo] of countdownTimers.entries()) {
+    resetCountdownTimer(tabId);
+  }
+}
+
+// For debugging - allow resetting timers via message
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'forceRefreshTimers') {
+    forceRefreshAllTimers();
+    sendResponse({ success: true });
+    return false; // Change to false since we're responding synchronously
+  }
+  
+  // Add a catch-all response
+  if (!message.action || typeof message.action !== 'string') {
+    sendResponse({ error: "Invalid message format or missing action" });
+    return false;
+  }
+  
+  // Handle unknown actions with a proper response
+  sendResponse({ error: `Unknown action: ${message.action}` });
+  return false;
 });

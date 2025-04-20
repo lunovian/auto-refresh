@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Auto Refresh Extension",
+  "name": "Auto Refresh",
   "version": "1.0",
-  "description": "Automatically refresh web pages based on time or DOM changes",
+  "description": "A simple tool to automatically refresh web pages at a specified interval",
   "permissions": [
     "activeTab",
     "storage",
@@ -10,6 +10,9 @@
     "windows",
     "notifications",
     "sidePanel"
+  ],
+  "host_permissions": [
+    "*://*/*"
   ],
   "action": {
     "default_icon": {
@@ -35,5 +38,9 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-  }
+  },
+  "web_accessible_resources": [{
+    "resources": ["ads/*", "icons/*", "sounds/ticking_*.mp3", "*.html", "*.js"],
+    "matches": ["<all_urls>"]
+  }]
 }

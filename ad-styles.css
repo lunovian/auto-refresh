@@ -1,0 +1,845 @@
+/* Ad and monetization styles for Auto Refresh extension */
+
+/* Google AdSense container styles */
+.adsbygoogle {
+  width: 100%;
+  min-height: 90px;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  overflow: hidden;
+}
+
+/* Common ad container styles */
+.ad-container, .settings-ad-container {
+  width: 100%;
+  min-height: 100px;
+  margin: 16px 0;
+  padding: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: height 0.3s ease;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Loading indicator for ads */
+.ad-container::before, .settings-ad-container::before {
+  content: "Loading ads...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+/* Hide loading indicator when content is loaded */
+.ad-container:not(:empty)::before,
+.settings-ad-container:not(:empty)::before {
+  display: none;
+}
+
+/* Ad banner styles */
+.ad-banner-container {
+  width: 100%;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ad-banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.ad-banner-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.ad-close-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #999;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s ease;
+}
+
+.ad-close-button:hover {
+  color: #333;
+}
+
+.ad-banner-content {
+  padding: 12px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.ad-banner-content h4 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.ad-banner-content p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.ad-cta-button {
+  display: inline-block;
+  padding: 6px 16px;
+  background-color: #81b622;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  margin-top: auto;
+  align-self: center;
+  border: none;
+  cursor: pointer;
+}
+
+.ad-cta-button:hover {
+  background-color: #699913;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Affiliate banner styles */
+.affiliate-banner-container {
+  width: 100%;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 100%;
+}
+
+.affiliate-banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.affiliate-banner-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.affiliate-banner-content {
+  padding: 12px 16px;
+  display: flex;
+}
+
+.affiliate-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.affiliate-info {
+  flex: 1;
+}
+
+.affiliate-info h4 {
+  margin: 0 0 5px;
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.affiliate-info p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.affiliate-cta-button {
+  display: inline-block;
+  padding: 6px 16px;
+  background-color: #81b622;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.affiliate-cta-button:hover {
+  background-color: #699913;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Premium promotion styles in sidepanel */
+.premium-promo {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 16px 0;
+  background: linear-gradient(135deg, #f5f9ed, #e8f0d9);
+  border: 1px solid #d1e6a5;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(129, 182, 34, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.premium-promo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(129, 182, 34, 0.2);
+}
+
+.premium-promo::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(30deg);
+  z-index: 1;
+}
+
+.premium-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #81b622, #699913);
+  margin-right: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.premium-badge span {
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.premium-info {
+  flex: 1;
+  z-index: 2;
+}
+
+.premium-info h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.premium-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.premium-button {
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #81b622, #699913);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.premium-button:hover {
+  background: linear-gradient(135deg, #8ac327, #74a515);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.premium-button:active {
+  transform: translateY(0);
+}
+
+/* Premium section on settings page */
+.premium-section {
+  background: linear-gradient(135deg, #f5f9ed, #eaf2df);
+  border-left: 4px solid #81b622;
+  padding-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-section::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(129,182,34,0.1) 0%, rgba(129,182,34,0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.premium-section h2 {
+  position: relative;
+  z-index: 1;
+}
+
+.premium-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.premium-plan {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.premium-plan:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: #e0e0e0;
+}
+
+.premium-plan.recommended {
+  border: 2px solid #81b622;
+  transform: scale(1.02);
+  z-index: 2;
+}
+
+.premium-plan.recommended:hover {
+  transform: scale(1.02) translateY(-5px);
+}
+
+.recommended-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #81b622, #699913);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.premium-plan h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: #444;
+}
+
+.premium-price {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  color: #333;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.premium-savings {
+  text-align: center;
+  color: #81b622;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 20px;
+  letter-spacing: 0.2px;
+}
+
+.premium-features {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 24px;
+  flex: 1;
+}
+
+.premium-features li {
+  margin-bottom: 10px;
+  padding-left: 28px;
+  position: relative;
+  font-size: 14px;
+  color: #555;
+}
+
+.premium-features li::before {
+  content: "✓";
+  color: #81b622;
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+}
+
+.premium-plan .premium-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #81b622, #699913);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.premium-plan .premium-button:hover {
+  background: linear-gradient(135deg, #8ac327, #74a515);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(129, 182, 34, 0.2);
+}
+
+.premium-plan .premium-button:active {
+  transform: translateY(0);
+}
+
+/* Donation section styles */
+.donation-section {
+  text-align: center;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-top: 30px;
+  border: 1px solid #f0f0f0;
+  position: relative;
+  z-index: 1;
+}
+
+.donation-section h3 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.donation-section p {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #666;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.donation-options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.donation-button {
+  min-width: 60px;
+  padding: 10px 18px;
+  background-color: white;
+  border: 2px solid #81b622;
+  color: #81b622;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.donation-button:hover {
+  background-color: #f5f9ed;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.donation-button:active {
+  transform: translateY(0);
+}
+
+.donation-button.custom-donation {
+  background-color: #f5f9ed;
+  padding: 10px 24px;
+}
+
+/* Subtle message for those who've already donated */
+.donation-thanks {
+  font-size: 13px;
+  color: #81b622;
+  margin-top: 15px;
+  font-style: italic;
+  opacity: 0;
+  height: 0;
+  transition: opacity 0.5s ease, height 0.5s ease;
+}
+
+.donation-thanks.visible {
+  opacity: 1;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+/* Loading state */
+.loading-state {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading-state::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+.loading-state::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(129, 182, 34, 0.3);
+  border-top: 3px solid #81b622;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .premium-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .premium-plan.recommended {
+    transform: scale(1);
+  }
+  
+  .premium-plan.recommended:hover {
+    transform: translateY(-5px);
+  }
+}
+
+/* Premium active info specific styling */
+.premium-active-info {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-status {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 10px;
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
+}
+
+.premium-status::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(129, 182, 34, 0.05) 0%, rgba(129, 182, 34, 0) 70%);
+  border-radius: 0 0 0 120px;
+  z-index: -1;
+}
+
+.premium-status-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  background-color: #81b622;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.premium-status-icon svg {
+  width: 24px !important;
+  height: 24px !important;
+  display: block;
+}
+
+.premium-status-details {
+  flex: 1;
+}
+
+.premium-status-details h3 {
+  margin: 0 0 8px;
+  color: #81b622;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.premium-status-details p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.expiration-date {
+  margin-top: 10px !important;
+  font-size: 13px !important;
+  color: #888 !important;
+  font-style: italic;
+  display: block !important;
+}
+
+.lifetime-badge {
+  display: inline-block !important;
+  background-color: #81b622;
+  color: white !important;
+  padding: 4px 12px !important;
+  border-radius: 12px;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  margin-top: 10px !important;
+  letter-spacing: 0.5px;
+}
+
+/* Add premium pillar decoration */
+.premium-active-info::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(to bottom, #81b622, #699913);
+  opacity: 0.6;
+}
+
+/* Premium icon for smaller screens */
+@media (max-width: 480px) {
+  .premium-status-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+  
+  .premium-status-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  
+  .premium-status {
+    padding: 12px 16px;
+  }
+  
+  .premium-status-details h3 {
+    font-size: 16px;
+  }
+}
+
+/* Legal links styling */
+.legal-links {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 13px;
+  color: #777;
+}
+
+.legal-links a {
+  color: #81b622;
+  text-decoration: none;
+  margin: 0 8px;
+  transition: color 0.2s ease;
+}
+
+.legal-links a:hover {
+  color: #699913;
+  text-decoration: underline;
+}
+
+/* Donation button styling */
+.donation-button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #81b622;
+  color: white;
+  font-weight: 500;
+  margin: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.donation-button:hover {
+  background-color: #699913;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.donation-button:active {
+  transform: translateY(0);
+}
+
+.custom-donation {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.custom-donation:hover {
+  background-color: #e0e0e0;
+}
+
+.donation-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.donation-thanks {
+  padding: 15px;
+  background-color: #edf5e1;
+  border-left: 4px solid #81b622;
+  border-radius: 4px;
+  margin-top: 20px;
+  text-align: center;
+  color: #4d7010;
+}
+
+/* Style for Buy Me A Coffee button */
+.bmc-button {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  border-radius: 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.bmc-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.bmc-button:active {
+  transform: translateY(0);
+}
+
+/* Style for custom Buy Me A Coffee button */
+.custom-coffee-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFDD00;
+  color: #000000;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-coffee-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.custom-coffee-button:active {
+  transform: translateY(0);
+}
+
+.coffee-button-content {
+  display: flex;
+  align-items: center;
+}
