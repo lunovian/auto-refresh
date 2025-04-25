@@ -1,15 +1,5 @@
 /* Ad and monetization styles for Auto Refresh extension */
 
-/* Google AdSense container styles */
-.adsbygoogle {
-  width: 100%;
-  min-height: 90px;
-  margin: 0;
-  padding: 0;
-  background-color: #f9f9f9;
-  overflow: hidden;
-}
-
 /* Common ad container styles */
 .ad-container, .settings-ad-container {
   width: 100%;
@@ -20,13 +10,37 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: height 0.3s ease;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+/* Styles for ad containers */
+.ad-container {
+  margin: 16px 0;
+  padding: 10px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 100px;
+}
+
+/* Add a subtle label to identify ads for branding */
+.ad-container::before {
+  content: "aivionlabs.netlify.app";
+  display: block;
+  font-size: 10px;
+  color: var(--muted-text);
+  text-align: center;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Loading indicator for ads */
@@ -37,7 +51,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 12px;
-  color: #999;
+  color: var(--muted-text);
   text-align: center;
 }
 
@@ -50,7 +64,7 @@
 /* Ad banner styles */
 .ad-banner-container {
   width: 100%;
-  background-color: #f9f9f9;
+  background-color: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -63,13 +77,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 10px;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .ad-banner-label {
   font-size: 11px;
-  color: #666;
+  color: var(--muted-text);
   text-transform: uppercase;
   font-weight: 500;
   letter-spacing: 0.5px;
@@ -79,14 +93,14 @@
   background: none;
   border: none;
   font-size: 16px;
-  color: #999;
+  color: var(--muted-text);
   cursor: pointer;
   padding: 0 4px;
   transition: color 0.2s ease;
 }
 
 .ad-close-button:hover {
-  color: #333;
+  color: var(--text-color);
 }
 
 .ad-banner-content {
@@ -101,21 +115,21 @@
 .ad-banner-content h4 {
   margin: 0 0 8px;
   font-size: 15px;
-  color: #333;
+  color: var(--text-color);
   font-weight: 600;
 }
 
 .ad-banner-content p {
   margin: 0 0 12px;
   font-size: 13px;
-  color: #666;
+  color: var(--muted-text);
   line-height: 1.4;
 }
 
 .ad-cta-button {
   display: inline-block;
   padding: 6px 16px;
-  background-color: #81b622;
+  background-color: var(--primary-color);
   color: white;
   text-decoration: none;
   font-size: 14px;
@@ -129,7 +143,7 @@
 }
 
 .ad-cta-button:hover {
-  background-color: #699913;
+  background-color: var(--primary-hover);
   text-decoration: none;
   transform: translateY(-1px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -138,7 +152,7 @@
 /* Affiliate banner styles */
 .affiliate-banner-container {
   width: 100%;
-  background-color: #f9f9f9;
+  background-color: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;
   height: 100%;
@@ -149,13 +163,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 10px;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .affiliate-banner-label {
   font-size: 11px;
-  color: #666;
+  color: var(--muted-text);
   text-transform: uppercase;
   font-weight: 500;
   letter-spacing: 0.5px;
@@ -172,7 +186,7 @@
   object-fit: cover;
   margin-right: 12px;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
 }
 
 .affiliate-info {
@@ -182,21 +196,21 @@
 .affiliate-info h4 {
   margin: 0 0 5px;
   font-size: 15px;
-  color: #333;
+  color: var(--text-color);
   font-weight: 600;
 }
 
 .affiliate-info p {
   margin: 0 0 8px;
   font-size: 12px;
-  color: #666;
+  color: var(--muted-text);
   line-height: 1.4;
 }
 
 .affiliate-cta-button {
   display: inline-block;
   padding: 6px 16px;
-  background-color: #81b622;
+  background-color: var(--primary-color);
   color: white;
   text-decoration: none;
   font-size: 13px;
@@ -209,7 +223,7 @@
 }
 
 .affiliate-cta-button:hover {
-  background-color: #699913;
+  background-color: var(--primary-hover);
   text-decoration: none;
   transform: translateY(-1px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -221,8 +235,9 @@
   align-items: center;
   padding: 12px 16px;
   margin: 16px 0;
-  background: linear-gradient(135deg, #f5f9ed, #e8f0d9);
-  border: 1px solid #d1e6a5;
+  background: var(--card-bg);
+  border: 1px solid var(--primary-light);
+  border-left: 4px solid var(--primary-color);
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(129, 182, 34, 0.1);
   position: relative;
@@ -245,6 +260,10 @@
   background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
   transform: rotate(30deg);
   z-index: 1;
+}
+
+.dark-mode .premium-promo::after {
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
 }
 
 .premium-badge {
@@ -313,8 +332,8 @@
 
 /* Premium section on settings page */
 .premium-section {
-  background: linear-gradient(135deg, #f5f9ed, #eaf2df);
-  border-left: 4px solid #81b622;
+  background: var(--card-bg);
+  border-left: 4px solid var(--primary-color);
   padding-bottom: 30px;
   position: relative;
   overflow: hidden;
@@ -346,16 +365,17 @@
   z-index: 1;
 }
 
+/* Premium plan backgrounds */
 .premium-plan {
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--bg-color);
   border-radius: 12px;
   padding: 24px 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
 }
 
 .premium-plan:hover {
@@ -470,11 +490,11 @@
 .donation-section {
   text-align: center;
   padding: 25px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   margin-top: 30px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
   position: relative;
   z-index: 1;
 }
@@ -482,14 +502,14 @@
 .donation-section h3 {
   margin: 0 0 12px;
   font-size: 20px;
-  color: #333;
+  color: var(--text-color);
   font-weight: 600;
 }
 
 .donation-section p {
   margin: 0 0 20px;
   font-size: 14px;
-  color: #666;
+  color: var(--muted-text);
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
@@ -504,101 +524,124 @@
   margin-bottom: 5px;
 }
 
+/* Donation button styling - updated for dark mode */
 .donation-button {
-  min-width: 60px;
-  padding: 10px 18px;
-  background-color: white;
-  border: 2px solid #81b622;
-  color: #81b622;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+  margin: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 60px;
 }
 
 .donation-button:hover {
-  background-color: #f5f9ed;
+  background-color: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .donation-button:active {
   transform: translateY(0);
 }
 
-.donation-button.custom-donation {
-  background-color: #f5f9ed;
-  padding: 10px 24px;
+/* Custom donation button */
+.custom-donation {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
-/* Subtle message for those who've already donated */
+.custom-donation:hover {
+  background-color: var(--primary-light);
+}
+
+/* Donation thanks section */
 .donation-thanks {
-  font-size: 13px;
-  color: #81b622;
-  margin-top: 15px;
-  font-style: italic;
-  opacity: 0;
-  height: 0;
-  transition: opacity 0.5s ease, height 0.5s ease;
+  padding: 15px;
+  background-color: var(--primary-light);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 4px;
+  margin-top: 20px;
+  text-align: center;
+  color: var(--primary-color);
 }
 
-.donation-thanks.visible {
-  opacity: 1;
-  height: auto;
+/* Style for Buy Me A Coffee button */
+.bmc-button {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  border-radius: 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
 }
 
-/* Loading state */
-.loading-state {
-  position: relative;
-  pointer-events: none;
+.bmc-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
-.loading-state::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.7);
+.bmc-button:active {
+  transform: translateY(0);
+}
+
+/* Style for custom Buy Me A Coffee button */
+.custom-coffee-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 24px;
   border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.loading-state::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(129, 182, 34, 0.3);
-  border-top: 3px solid #81b622;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  z-index: 1;
+.custom-coffee-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--primary-hover);
 }
 
-@keyframes spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+.coffee-button-content {
+  display: flex;
+  align-items: center;
 }
 
-/* Media queries for responsive design */
-@media (max-width: 768px) {
-  .premium-options {
-    grid-template-columns: 1fr;
-  }
-  
-  .premium-plan.recommended {
-    transform: scale(1);
-  }
-  
-  .premium-plan.recommended:hover {
-    transform: translateY(-5px);
-  }
+/* CSP-compliant ad styling */
+.csp-compliant-ad {
+  transition: all 0.3s ease;
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: var(--card-bg);
+}
+
+/* Sponsorship contact styling */
+.csp-compliant-ad a[href^="mailto:"] {
+  font-size: 11px;
+  color: var(--primary-color);
+  text-decoration: none;
+  margin-top: 10px;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.csp-compliant-ad a[href^="mailto:"]:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+/* Handle any potential overflow issues */
+.csp-compliant-ad img {
+  max-width: 100%;
 }
 
 /* Premium active info specific styling */
@@ -611,7 +654,7 @@
   display: flex;
   align-items: flex-start;
   margin-top: 10px;
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 16px 20px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -818,8 +861,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #FFDD00;
-  color: #000000;
+  background-color: var(--primary-color);
+  color: white;
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 600;
@@ -833,13 +876,98 @@
 .custom-coffee-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.custom-coffee-button:active {
-  transform: translateY(0);
+  background-color: var(--primary-hover);
 }
 
 .coffee-button-content {
   display: flex;
   align-items: center;
+}
+
+/* CSP-compliant ad styling */
+.csp-compliant-ad {
+  transition: all 0.3s ease;
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: var(--card-bg);
+}
+
+/* Sponsorship contact styling */
+.csp-compliant-ad a[href^="mailto:"] {
+  font-size: 11px;
+  color: var(--primary-color);
+  text-decoration: none;
+  margin-top: 10px;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.csp-compliant-ad a[href^="mailto:"]:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+/* Handle any potential overflow issues */
+.csp-compliant-ad img {
+  max-width: 100%;
+}
+
+/* Loading state */
+.loading-state {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading-state::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+.loading-state::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(129, 182, 34, 0.3);
+  border-top: 3px solid #81b622;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .premium-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .premium-plan.recommended {
+    transform: scale(1);
+  }
+  
+  .premium-plan.recommended:hover {
+    transform: translateY(-5px);
+  }
+}
+
+/* Responsive adjustments for different screen sizes */
+@media (max-width: 600px) {
+  .ad-container {
+    margin: 12px 0;
+    padding: 8px;
+  }
 }

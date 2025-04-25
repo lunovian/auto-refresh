@@ -7,11 +7,12 @@ class AdsManager {
   constructor() {
     this.adConfig = {
       enabled: true,
-      premiumUser: false,
-      adFrequency: 'medium', // low, medium, high
+      adFrequency: 'medium', // low, medium, high, minimal
       lastAdShown: 0,
       adProviders: ['extension-ads', 'affiliate'],
       currentProvider: 0,
+      minimalTracking: false, // Added minimal tracking option
+      optOut: false, // Added explicit opt-out option
       // Tracking metrics
       impressions: 0,
       clicks: 0,
@@ -54,7 +55,7 @@ class AdsManager {
       adClicks: []
     };
     
-    // Load config and premium status
+    // Load config
     this.loadConfig();
   }
   
@@ -63,16 +64,10 @@ class AdsManager {
    */
   async loadConfig() {
     try {
-      const data = await chrome.storage.sync.get(['adConfig', 'premiumStatus']);
+      const data = await chrome.storage.sync.get(['adConfig']);
       if (data.adConfig) {
         this.adConfig = {...this.adConfig, ...data.adConfig};
       }
-      
-      // Check premium status
-      if (data.premiumStatus && data.premiumStatus.active) {
-        this.adConfig.premiumUser = true;
-      }
-      
     } catch (err) {
       console.error('Error loading ad config:', err);
     }
@@ -96,14 +91,62 @@ class AdsManager {
     // Wait for config to load
     await this.loadConfig();
     
-    // Don't initialize ads for premium users
-    if (this.adConfig.premiumUser) return;
-    
-    // Upload any cached analytics
-    this.uploadCachedAnalytics();
+    // Only upload analytics if not opted out
+    if (!this.adConfig.optOut && !this.adConfig.minimalTracking) {
+      this.uploadCachedAnalytics();
+    } else if (this.adConfig.minimalTracking) {
+      // In minimal tracking mode, we just clear the cache without uploading
+      this.clearAnalyticsCache();
+    }
     
     console.log('Ad manager initialized');
     return true;
+  }
+  
+  /**
+   * Clear analytics cache without uploading
+   */
+  clearAnalyticsCache() {
+    this.analyticsCache.adImpressions = [];
+    this.analyticsCache.adClicks = [];
+  }
+
+  /**
+   * Set user ad preferences
+   * @param {Object} options - Ad preference options
+   * @param {boolean} options.enabled - Whether ads are enabled
+   * @param {string} options.frequency - Ad frequency (low, medium, high, minimal)
+   * @param {boolean} options.minimalTracking - Whether to use minimal tracking
+   * @param {boolean} options.optOut - Whether to opt out of analytics
+   */
+  setPreferences(options) {
+    if (options.enabled !== undefined) {
+      this.adConfig.enabled = Boolean(options.enabled);
+    }
+    
+    if (options.frequency) {
+      this.adConfig.adFrequency = options.frequency;
+    }
+    
+    if (options.minimalTracking !== undefined) {
+      this.adConfig.minimalTracking = Boolean(options.minimalTracking);
+      
+      // If minimal tracking is enabled, clear existing analytics cache
+      if (this.adConfig.minimalTracking) {
+        this.clearAnalyticsCache();
+      }
+    }
+    
+    if (options.optOut !== undefined) {
+      this.adConfig.optOut = Boolean(options.optOut);
+      
+      // If opted out, clear analytics cache
+      if (this.adConfig.optOut) {
+        this.clearAnalyticsCache();
+      }
+    }
+    
+    this.saveConfig();
   }
   
   /**
@@ -112,11 +155,13 @@ class AdsManager {
    * @returns {boolean} - Success status
    */
   async showBannerAd(containerId) {
-    // Don't show ads to premium users
-    if (this.adConfig.premiumUser) return false;
-    
     const container = document.getElementById(containerId);
     if (!container) return false;
+    
+    // Don't show ads if disabled
+    if (!this.adConfig.enabled) {
+      return false;
+    }
     
     // Check cooldown period based on frequency setting
     const now = Date.now();
@@ -273,13 +318,15 @@ class AdsManager {
   getAdCooldownPeriod() {
     switch (this.adConfig.adFrequency) {
       case 'low':
-        return 5 * 60 * 1000; // 5 minutes
+        return 10 * 60 * 1000; // 10 minutes (increased from 5)
       case 'medium':
-        return 2 * 60 * 1000; // 2 minutes
+        return 5 * 60 * 1000; // 5 minutes (increased from 2)
       case 'high':
-        return 1 * 60 * 1000; // 1 minute
+        return 2 * 60 * 1000; // 2 minutes (increased from 1)
+      case 'minimal':
+        return 30 * 60 * 1000; // 30 minutes (new minimal option)
       default:
-        return 3 * 60 * 1000; // 3 minutes default
+        return 5 * 60 * 1000; // 5 minutes default (increased from 3)
     }
   }
   
@@ -289,7 +336,20 @@ class AdsManager {
    * @param {string} productId - Product being advertised
    */
   trackAdImpression(adType, productId) {
-    // Add to local cache
+    // Don't track if opted out or using minimal tracking
+    if (this.adConfig.optOut) {
+      return;
+    }
+    
+    // Add to local cache - with minimal data if minimal tracking is enabled
+    if (this.adConfig.minimalTracking) {
+      // In minimal tracking mode, we just count impressions without details
+      this.adConfig.impressions++;
+      this.saveConfig();
+      return;
+    }
+    
+    // Normal tracking
     this.analyticsCache.adImpressions.push({
       timestamp: Date.now(),
       adType: adType,
@@ -313,7 +373,20 @@ class AdsManager {
    * @param {string} link - Clicked URL
    */
   trackAdClick(adType, productId, link) {
-    // Add to local cache
+    // Don't track if opted out
+    if (this.adConfig.optOut) {
+      return;
+    }
+    
+    // Minimal tracking mode
+    if (this.adConfig.minimalTracking) {
+      // In minimal tracking mode, we just count clicks without details
+      this.adConfig.clicks++;
+      this.saveConfig();
+      return;
+    }
+    
+    // Normal tracking
     this.analyticsCache.adClicks.push({
       timestamp: Date.now(),
       adType: adType,
@@ -332,6 +405,12 @@ class AdsManager {
    * Upload cached analytics to server
    */
   async uploadCachedAnalytics() {
+    // Don't upload if user has opted out or using minimal tracking
+    if (this.adConfig.optOut || this.adConfig.minimalTracking) {
+      this.clearAnalyticsCache();
+      return;
+    }
+    
     // In a real implementation, you would send data to your analytics service
     try {
       // Check if we have data to upload
@@ -393,54 +472,6 @@ class AdsManager {
       this._sessionId = 'ses_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
     return this._sessionId;
-  }
-  
-  /**
-   * Check premium status and update accordingly
-   */
-  async checkPremiumStatus() {
-    const data = await chrome.storage.sync.get('premiumStatus');
-    const now = Date.now();
-    
-    if (data.premiumStatus) {
-      const status = data.premiumStatus;
-      
-      // Check if premium subscription is still valid
-      if (status.active && status.expirationDate && status.expirationDate < now) {
-        // Premium expired
-        status.active = false;
-        this.adConfig.premiumUser = false;
-        await chrome.storage.sync.set({ premiumStatus: status });
-        await this.saveConfig();
-        
-        // Notify user about expiration
-        this.showPremiumExpiredNotification();
-        
-        return { active: false };
-      }
-      
-      return status;
-    }
-    
-    return { active: false };
-  }
-  
-  /**
-   * Show notification about premium expiration
-   */
-  showPremiumExpiredNotification() {
-    if (!chrome.notifications) return;
-    
-    chrome.notifications.create('premium-expired', {
-      type: 'basic',
-      iconUrl: 'icons/icon128.png',
-      title: 'Premium Subscription Expired',
-      message: 'Your premium subscription has expired. Renew now to continue enjoying ad-free experience and premium features.',
-      buttons: [
-        { title: 'Renew Now' },
-        { title: 'Later' }
-      ]
-    });
   }
 }
 

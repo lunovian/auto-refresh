@@ -20,8 +20,24 @@
         --bg-color: #fafafa;
         --card-bg: #ffffff;
         --text-color: #333;
+        --muted-text: #666;
+        --border-color: #e0e0e0;
         --border-radius: 8px;
         --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      /* Dark mode variables */
+      .dark-mode {
+        --primary-color: #9fce4c;
+        --primary-hover: #b5da6e;
+        --success-color: #81b622;
+        --bg-color: #1a1a1a;
+        --card-bg: #2d2d2d;
+        --text-color: #f0f0f0;
+        --muted-text: #b0b0b0;
+        --border-color: #444;
+        --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
 
       body {
@@ -30,12 +46,13 @@
         font-weight: 400;
         font-style: normal;
         width: 100%;
-        max-width: 600px;
+        max-width: 700px;
         padding: 24px;
         margin: 0 auto;
         background-color: var(--bg-color);
         color: var(--text-color);
         line-height: 1.5;
+        transition: var(--transition);
       }
 
       h1 {
@@ -44,8 +61,9 @@
         font-weight: 600;
         display: flex;
         align-items: center;
-        color: var (--primary-color);
+        color: var(--primary-color);
         margin-bottom: 24px;
+        position: relative;
       }
 
       h2 {
@@ -56,13 +74,21 @@
         color: var(--primary-color);
       }
 
+      h3 {
+        font-size: 16px;
+        font-weight: 500;
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: var(--text-color);
+      }
+
       .settings-group {
         margin-bottom: 24px;
         padding: 20px;
         border-radius: var(--border-radius);
         background-color: var(--card-bg);
         box-shadow: var(--shadow);
-        transition: box-shadow 0.3s ease;
+        transition: var(--transition);
       }
 
       .settings-group:hover {
@@ -103,9 +129,12 @@
       input[type="number"] {
         width: 80px;
         padding: 8px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         font-size: 14px;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        transition: var(--transition);
       }
 
       input[type="number"]:focus {
@@ -118,17 +147,18 @@
       input[type="text"] {
         width: 100%;
         padding: 10px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         font-size: 14px;
         box-sizing: border-box;
-        background-color: white;
-        transition: all 0.3s ease;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        transition: var(--transition);
       }
 
       select:focus,
       input[type="text"]:focus {
-        border-color: var (--primary-color);
+        border-color: var(--primary-color);
         outline: none;
         box-shadow: 0 0 0 2px rgba(129, 182, 34, 0.2);
       }
@@ -147,7 +177,7 @@
         cursor: pointer;
         font-weight: 500;
         font-size: 14px;
-        transition: all 0.2s ease;
+        transition: var(--transition);
       }
 
       button:hover {
@@ -169,13 +199,24 @@
       }
 
       button.secondary {
-        background-color: #f1f1f1;
-        color: #333;
+        background-color: var(--border-color);
+        color: var(--text-color);
       }
 
       button.secondary:hover {
-        background-color: #e0e0e0;
+        background-color: #d0d0d0;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      button.icon-button {
+        padding: 8px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: transparent;
       }
 
       .status {
@@ -188,34 +229,21 @@
 
       .status.success {
         display: block;
-        background-color: #edf5e1; /* Light green background */
-        color: #4d7010; /* Darker green text */
-        border-left: 4px solid #81b622; /* Using primary-color */
+        background-color: rgba(129, 182, 34, 0.1);
+        color: var(--success-color);
+        border-left: 4px solid var(--primary-color);
       }
 
       .status.error {
         display: block;
-        background-color: #f8d7da;
-        color: #721c24;
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
         border-left: 4px solid #dc3545;
-      }
-
-      .language-selector {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        margin-top: 8px;
-        font-family: "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-          "Noto Sans Arabic", "Noto Sans Thai", "Noto Sans Hebrew",
-          "Noto Sans Devanagari", "Inter", system-ui, -apple-system,
-          BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
       .hint-text {
         font-size: 12px;
-        color: #666;
+        color: var(--muted-text);
         margin-top: 6px;
         font-style: italic;
       }
@@ -224,19 +252,19 @@
         position: relative;
         display: inline-block;
         margin-left: 6px;
-        color: #999;
+        color: var(--muted-text);
         font-size: 14px;
         cursor: help;
       }
 
       .tooltip-text {
         visibility: hidden;
-        width: 200px;
+        width: 220px;
         background-color: #555;
         color: #fff;
-        text-align: center;
+        text-align: left;
         border-radius: 6px;
-        padding: 8px;
+        padding: 8px 12px;
         position: absolute;
         z-index: 1;
         bottom: 125%;
@@ -267,14 +295,6 @@
         border-color: #555 transparent transparent transparent;
       }
 
-      .language-section {
-        padding: 12px;
-        margin-top: 16px;
-        border-radius: 6px;
-        background-color: #f2f7e6; /* Light green background */
-        border-left: 4px solid #81b622; /* Using primary-color */
-      }
-
       /* Grid layout for better organize settings */
       .settings-grid {
         display: grid;
@@ -282,24 +302,216 @@
         gap: 16px;
       }
 
-      /* Ensure proper rendering of various language scripts */
-      .language-selector option {
-        font-family: "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-          "Noto Sans Arabic", "Noto Sans Thai", "Noto Sans Hebrew",
-          "Noto Sans Devanagari", "Inter", system-ui, -apple-system,
-          BlinkMacSystemFont, "Segoe UI", sans-serif;
-        padding: 8px;
+      /* Enhanced tabs navigation */
+      .tabs-container {
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
       }
 
-      /* Remove underline from Buy Me A Coffee button */
+      .tabs-nav {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+
+      .tabs-nav::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .tabs-nav::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 4px;
+      }
+
+      .tab-button {
+        padding: 12px 16px;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--muted-text);
+        cursor: pointer;
+        font-weight: 500;
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+
+      .tab-button:hover {
+        color: var(--text-color);
+      }
+
+      .tab-button.active {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+        transform: translateY(0);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Sound selection section */
+      .sound-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .sound-option {
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+
+      .sound-option:hover {
+        background-color: rgba(129, 182, 34, 0.1);
+      }
+
+      .sound-option.selected {
+        background-color: rgba(129, 182, 34, 0.15);
+        border-color: var(--primary-color);
+      }
+
+      .sound-option input[type="radio"] {
+        margin-right: 8px;
+        accent-color: var(--primary-color);
+      }
+
+      /* Support and donation */
       .custom-coffee-button {
         text-decoration: none;
+        display: inline-block;
+        padding: 12px 18px;
+        background-color: #ffdd00;
+        color: #000;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: var(--transition);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .custom-coffee-button:hover {
+        background-color: #ffe44d;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
       }
 
       .coffee-button-content {
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+
+      /* Theme toggle */
+      .theme-toggle {
+        position: absolute;
+        right: 0;
+        top: 5px;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+      }
+
+      .theme-toggle:hover {
+        background-color: rgba(129, 182, 34, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .dark-mode .theme-toggle:hover {
+        background-color: rgba(159, 206, 76, 0.15);
+      }
+
+      /* Legal links */
+      .legal-links {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted-text);
+      }
+
+      .legal-links a {
+        color: var(--muted-text);
+        text-decoration: none;
+        transition: var(--transition);
+        margin: 0 8px;
+      }
+
+      .legal-links a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
+      /* Settings validation */
+      input:invalid {
+        border-color: #dc3545;
+      }
+
+      .validation-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+        display: none;
+      }
+
+      input:invalid + .validation-message {
+        display: block;
+      }
+
+      /* Notification banner */
+      .notification-banner {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 16px;
+        border-radius: 6px;
+        background-color: var(--card-bg);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        max-width: 350px;
+        animation: slideInDown 0.3s ease forwards;
+        border-left: 4px solid var(--primary-color);
+      }
+
+      @keyframes slideInDown {
+        from {
+          transform: translate(-50%, -20px);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, 0);
+          opacity: 1;
+        }
       }
     </style>
   </head>
@@ -313,64 +525,209 @@
         style="margin-right: 12px"
       />
       <span>Auto Refresh Settings</span>
+      <button
+        id="themeToggle"
+        class="theme-toggle"
+        aria-label="Toggle dark mode"
+      >
+        <svg
+          id="darkIcon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          style="display: block"
+        >
+          <path
+            fill="currentColor"
+            d="M11.0174 2.80157C6.37072 3.29221 2.75 7.22328 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C16.7767 21.25 20.7078 17.6293 21.1984 12.9826C19.8717 14.6669 17.8126 15.75 15.5 15.75C11.4959 15.75 8.25 12.5041 8.25 8.5C8.25 6.18738 9.33315 4.1283 11.0174 2.80157ZM1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C12.7166 1.25 13.0754 1.82126 13.1368 2.27627C13.196 2.71398 13.0342 3.27065 12.531 3.57467C10.8627 4.5828 9.75 6.41182 9.75 8.5C9.75 11.6756 12.3244 14.25 15.5 14.25C17.5882 14.25 19.4172 13.1373 20.4253 11.469C20.7293 10.9658 21.286 10.804 21.7237 10.8632C22.1787 10.9246 22.75 11.2834 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12Z"
+            transform="translate(0 -3)"
+          />
+        </svg>
+        <svg
+          id="lightIcon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          style="display: none"
+        >
+          <path
+            fill="white"
+            d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3zM11 3V1h2v2h-2zm0 19v-2h2v2h-2zM3.515 5.636L4.929 4.222l1.414 1.414L4.93 7.05 3.515 5.636zm15.556 12.728l-1.414 1.414-1.414-1.414 1.414-1.414 1.414 1.414zM5.636 20.485l-1.414-1.414 1.414-1.414 1.414 1.414-1.414 1.414zM18.364 3.515l1.414 1.414-1.414 1.414-1.414-1.414 1.414-1.414zM23 11v2h-2v-2h2zM3 11v2H1v-2h2z"
+          />
+        </svg>
+      </button>
     </h1>
 
-    <div class="settings-group">
-      <h2>Display</h2>
-
-      <!-- Remove language section -->
-      <div class="settings-item">
-        <label class="checkbox-label">
-          <input type="checkbox" id="showNotifications" />
-          <span>Show notifications</span>
-          <span class="tooltip">
-            ?
-            <span class="tooltip-text">
-              Display notifications when auto-refresh is active and when pages
-              are refreshed
-            </span>
-          </span>
-        </label>
-      </div>
-
-      <!-- Sound Effects Options -->
-      <div class="settings-item">
-        <label class="checkbox-label">
-          <input type="checkbox" id="enableSoundEffects" />
-          <span>Play sound effects</span>
-          <span class="tooltip">
-            ?
-            <span class="tooltip-text">
-              Play a sound when the page is refreshed
-            </span>
-          </span>
-        </label>
-      </div>
-
-      <!-- Add Ticking Sound Option -->
-      <div class="settings-item">
-        <label class="checkbox-label">
-          <input type="checkbox" id="enableTickingSound" />
-          <span>Play ticking sound during countdown</span>
-          <span class="tooltip">
-            ?
-            <span class="tooltip-text">
-              Play a clock ticking sound while waiting for the next refresh
-            </span>
-          </span>
-        </label>
+    <!-- Tabs navigation -->
+    <div class="tabs-container">
+      <div class="tabs-nav">
+        <button id="generalTab" class="tab-button active" data-tab="general">
+          General
+        </button>
+        <button id="displayTab" class="tab-button" data-tab="display">
+          Display & Appearance
+        </button>
+        <button id="behaviorTab" class="tab-button" data-tab="behavior">
+          Refresh Behavior
+        </button>
+        <button id="advancedTab" class="tab-button" data-tab="advanced">
+          Advanced
+        </button>
+        <button id="aboutTab" class="tab-button" data-tab="about">About</button>
       </div>
     </div>
 
-    <div class="settings-group">
-      <h2>Refresh Behavior</h2>
+    <!-- General Settings Tab -->
+    <div id="general" class="tab-content active">
+      <div class="settings-group">
+        <h2>General Settings</h2>
 
-      <div class="settings-grid">
         <div class="settings-item">
-          <label>Default Refresh Interval (seconds)</label>
-          <input type="number" id="defaultInterval" min="1" value="30" />
-          <div class="hint-text">Starting value for new refresh tasks</div>
+          <label>Default Refresh Interval</label>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <input
+              type="number"
+              id="defaultInterval"
+              min="1"
+              max="86400"
+              value="30"
+              required
+            />
+            <span>seconds</span>
+          </div>
+          <div class="hint-text">
+            Starting value for new refresh tasks (1 - 86400 seconds)
+          </div>
+          <div class="validation-message">
+            Please enter a value between 1 and 86400
+          </div>
         </div>
+
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="startupRefreshMode" />
+            <span>Remember refresh mode</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                Automatically restore your last used refresh mode for each tab
+                when you reopen it
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="showNotifications" />
+            <span>Show notifications</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                Display notifications when auto-refresh is active and when pages
+                are refreshed
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display & Appearance Tab -->
+    <div id="display" class="tab-content">
+      <div class="settings-group">
+        <h2>Display Settings</h2>
+
+        <div class="settings-item">
+          <label>Theme</label>
+          <select id="themeSelector">
+            <option value="system">System Default</option>
+            <option value="light">Light Mode</option>
+            <option value="dark">Dark Mode</option>
+          </select>
+          <div class="hint-text">Choose how the extension looks</div>
+        </div>
+
+        <div class="settings-item">
+          <h3>Sound Effects</h3>
+
+          <div class="settings-item">
+            <label class="checkbox-label">
+              <input type="checkbox" id="enableSoundEffects" />
+              <span>Play sound effects</span>
+              <span class="tooltip">
+                ?
+                <span class="tooltip-text">
+                  Play a sound when the page is refreshed
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <label class="checkbox-label">
+              <input type="checkbox" id="enableTickingSound" />
+              <span>Play ticking sound during countdown</span>
+              <span class="tooltip">
+                ?
+                <span class="tooltip-text">
+                  Play a clock ticking sound while waiting for the next refresh
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div
+            id="tickingSoundOptions"
+            class="settings-item"
+            style="display: none"
+          >
+            <label>Select ticking sound</label>
+            <div class="sound-options">
+              <label class="sound-option">
+                <input
+                  type="radio"
+                  name="tickingSound"
+                  value="ticking_1.mp3"
+                  checked
+                />
+                <span>Classic</span>
+              </label>
+              <label class="sound-option">
+                <input type="radio" name="tickingSound" value="ticking_2.mp3" />
+                <span>Digital</span>
+              </label>
+              <label class="sound-option">
+                <input type="radio" name="tickingSound" value="ticking_3.mp3" />
+                <span>Gentle</span>
+              </label>
+              <label class="sound-option">
+                <input type="radio" name="tickingSound" value="ticking_4.mp3" />
+                <span>Mechanical</span>
+              </label>
+              <label class="sound-option">
+                <input type="radio" name="tickingSound" value="ticking_5.mp3" />
+                <span>Soft</span>
+              </label>
+            </div>
+            <div style="margin-top: 10px">
+              <button
+                id="previewSound"
+                class="secondary"
+                style="padding: 6px 12px"
+              >
+                Preview Sound
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refresh Behavior Tab -->
+    <div id="behavior" class="tab-content">
+      <div class="settings-group">
+        <h2>Refresh Behavior</h2>
 
         <div class="settings-item">
           <label class="checkbox-label">
@@ -388,12 +745,41 @@
 
         <div class="settings-item">
           <label class="checkbox-label">
-            <input type="checkbox" id="startupRefreshMode" />
-            <span>Remember refresh mode</span>
+            <input type="checkbox" id="skipErrorPages" />
+            <span>Skip error pages</span>
             <span class="tooltip">
               ?
               <span class="tooltip-text">
-                Automatically restore your last used refresh mode for each tab
+                If a page loads with an error (like 404 or 500 status codes),
+                try refreshing again immediately
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="pauseOnFocus" />
+            <span>Pause countdown when tab is active</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                When enabled, the auto-refresh countdown will pause when you're
+                actively viewing the tab
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="smartRefresh" />
+            <span>Smart refresh</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                Auto-adjust refresh rate based on network conditions and page
+                load times
               </span>
             </span>
           </label>
@@ -401,165 +787,154 @@
       </div>
     </div>
 
-    <div class="settings-group">
-      <h2>Advanced Options</h2>
+    <!-- Advanced Tab -->
+    <div id="advanced" class="tab-content">
+      <div class="settings-group">
+        <h2>Advanced Options</h2>
 
-      <div class="settings-item">
-        <label class="checkbox-label">
-          <input type="checkbox" id="enableResourceMonitoring" />
-          <span>Enable resource monitoring</span>
-          <span class="tooltip">
-            ?
-            <span class="tooltip-text">
-              Track changes to CSS/JS resources and refresh when they're updated
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableResourceMonitoring" />
+            <span>Enable resource monitoring</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                Track changes to CSS/JS resources and refresh when they're
+                updated. Useful for web development.
+              </span>
             </span>
-          </span>
-        </label>
-      </div>
+          </label>
+        </div>
 
-      <div class="settings-item">
-        <label>Resource Check Interval (seconds)</label>
-        <input type="number" id="resourceCheckInterval" min="1" value="5" />
-        <div class="hint-text">
-          How often to check if resources have been updated
+        <div class="settings-item">
+          <label>Resource Check Interval</label>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <input
+              type="number"
+              id="resourceCheckInterval"
+              min="1"
+              max="60"
+              value="5"
+              required
+            />
+            <span>seconds</span>
+          </div>
+          <div class="hint-text">
+            How often to check if resources have been updated (1-60 seconds)
+          </div>
+          <div class="validation-message">
+            Please enter a value between 1 and 60
+          </div>
+        </div>
+
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="blockAds" />
+            <span>Block ads during refresh</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                Try to prevent ad scripts from reloading during page refresh
+                (may not work on all sites)
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="developerMode" />
+            <span>Developer mode</span>
+            <span class="tooltip">
+              ?
+              <span class="tooltip-text">
+                Enable extended logging and developer features
+              </span>
+            </span>
+          </label>
         </div>
       </div>
     </div>
 
-    <!-- Replace Donation section with custom Buy Me A Coffee button -->
-    <div class="settings-group donation-section">
-      <h2>Support Development</h2>
-
-      <p style="margin-bottom: 20px">
-        Love Auto Refresh? Consider supporting future development by buying me a
-        coffee!
-      </p>
-
-      <div style="text-align: center; margin: 20px 0">
-        <a
-          href="https://www.buymeacoffee.com/nxan2911i"
-          target="_blank"
-          class="custom-coffee-button"
-        >
-          <div class="coffee-button-content">
-            <svg
-              width="25"
-              height="25"
-              viewBox="0 0 884 1279"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M791.109 297.518L790.231 297.002L788.201 296.383C789.018 297.072 790.04 297.472 791.109 297.518Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M803.896 388.891L802.916 389.166L803.896 388.891Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M791.484 297.377C791.359 297.361 791.237 297.332 791.118 297.29C791.111 297.371 791.111 297.453 791.118 297.534C791.252 297.516 791.379 297.462 791.484 297.377Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M791.113 297.529H791.244V297.447L791.113 297.529Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M803.111 388.726L804.591 387.883L805.142 387.573L805.641 387.04C804.702 387.444 803.846 388.016 803.111 388.726Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M793.669 299.515L792.223 298.138L791.243 297.605C791.77 298.535 792.641 299.221 793.669 299.515Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M430.019 1186.18C428.864 1186.68 427.852 1187.46 427.076 1188.45L430.416 1186.48C430.39 1186.32 430.361 1186.16 430.329 1186L430.019 1186.18Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M641.187 1144.63C641.187 1143.33 640.551 1143.57 640.705 1148.21C640.705 1147.84 640.86 1147.46 640.929 1147.1C641.015 1146.27 641.084 1145.46 641.187 1144.63Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M619.284 1186.18C618.129 1186.68 617.118 1187.46 616.342 1188.45L619.682 1186.48C619.656 1186.32 619.627 1186.16 619.594 1186L619.284 1186.18Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M281.304 1196.06C280.427 1195.3 279.354 1194.8 278.207 1194.61C279.136 1195.06 280.065 1195.51 280.994 1195.96L281.304 1196.06Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M247.841 1164.01C247.704 1162.66 247.288 1161.35 246.619 1160.16C247.093 1161.39 247.489 1162.66 247.806 1163.94L247.841 1164.01Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M472.623 590.836C426.682 583.931 377.504 620.652 372.844 671.691C369.902 703.933 374.461 722.234 376.367 756.214C377.402 772.159 377.532 788.399 376.757 804.545C375.932 820.792 375.666 836.076 375.481 851.884C375.186 882.044 376.257 912.199 377.355 942.358C380.667 1041.9 385.235 1141.3 389.696 1240.77C391.231 1279.59 397.217 1340.36 433.789 1361.37C447.634 1368.63 463.626 1369.58 479.531 1369.75C523.727 1370.35 567.835 1362.84 611.975 1361.41C661.277 1359.8 710.473 1362.61 759.605 1356.35C772.55 1355.01 785.989 1352.68 797.524 1345.55C816.233 1334.04 820.479 1310.09 822.137 1289.04C824.813 1254.48 825.642 1219.65 826.667 1184.99C827.726 1149.21 828.639 1113.42 829.407 1077.64C831.183 1006.36 831.971 934.729 826.684 863.483C826.013 856.747 825.326 850.032 824.598 843.265C824.022 837.817 823.261 832.393 822.776 826.944C821.294 813.023 823.009 798.608 824.421 784.753C825.921 769.967 826.557 755.001 826.989 740.115C827.818 712.241 826.335 684.055 822.165 656.45C818.293 630.204 810.093 600.823 791.873 580.858C777.349 565.14 757.325 556.219 737.372 551.221C691.371 539.704 641.146 540.12 594.183 544.318C542.595 548.931 490.758 550.973 439.203 555.245C429.639 555.954 422.483 558.311 414.09 563.284C405.975 568.84 405.732 578.321 405.875 587.925C406.019 597.792 406.88 607.676 407.597 617.536C409.407 643.934 411.219 670.419 413.024 696.892C416.301 744.978 419.466 792.951 422.87 841.084L449.74 841.297L468.293 841.573C479.58 841.738 490.871 841.584 502.161 841.081C527.462 840.035 552.777 838.942 578.034 837.271C600.555 835.822 623.101 834.912 645.637 833.134C656.476 832.362 667.295 831.035 678.126 830.288C682.978 829.934 687.867 829.854 692.74 829.543C707.228 828.652 721.653 826.995 736.123 826.356C750.141 825.734 764.935 826.985 778.933 825.865C801.793 824.069 824.447 819.403 843.492 805.804C861.885 792.683 876.322 772.271 879.628 750.223C881.133 740.253 880.565 730.126 879.871 720.195C879.237 710.563 878.3 701.337 876.957 691.822C873.936 671.87 869.768 652.187 863.221 632.971C858.745 619.695 853.384 606.662 846.952 594.09C830.961 563.083 809.248 535.559 783.588 512.071C757.762 488.437 729.067 467.645 700.449 447.088C694.402 443.251 688.344 439.533 682.257 435.834C679.798 434.215 677.451 432.353 675.169 430.472C673.217 428.95 671.38 427.226 669.15 426.195C663.964 423.851 659.568 420.652 654.899 417.605C651.17 415.228 650.066 411.637 650.458 407.235C650.767 403.724 651.248 400.201 651.372 396.677C651.669 387.968 651.216 379.249 651.136 370.534C651.015 357.843 650.854 345.133 651.495 332.455C651.85 325.187 651.431 319.822 649.218 313.384C644.115 297.532 630.636 290.186 614.526 290.11C603.231 290.121 591.888 293.322 580.939 295.082C561.648 298.074 540.674 296.529 523.75 286.727C513.493 280.753 504.304 272.073 496.308 262.727C487.155 251.961 475.312 243.213 461.105 241.414C450.764 240.131 441.146 242.426 431.155 245.39C421.483 248.261 412.213 252.424 403.058 256.472C364.858 274.142 324.998 290.879 296.629 325.4C282.145 343.398 270.886 364.082 261.89 385.197C255.401 400.691 250.252 416.587 244.283 432.272C241.916 438.943 239.172 445.57 237.116 452.28C235.621 457.243 234.727 460.993 237.514 465.389C238.378 466.756 239.306 468.634 240.533 469.463C243.457 471.615 243.85 469.325 242.387 466.158C242.069 465.476 242.177 464.637 242.5 463.963C247.596 454.611 252.594 445.237 258.009 435.991C264.15 425.415 270.764 414.95 278.27 405.11C284.062 397.661 290.559 390.623 296.873 383.646C302.387 377.555 307.997 371.76 313.697 365.981C319.421 360.177 325.135 354.482 331.256 349.348C337.498 344.123 344.11 339.445 350.972 335.138C357.81 330.869 364.845 327.064 372.12 323.79C379.499 320.477 387.13 317.603 394.879 315.226C402.534 312.892 410.349 311.111 418.265 309.973C441.789 307.154 465.657 308.758 487.34 320.065C496.587 325.003 504.493 332.057 511.972 339.98C519.309 347.722 526.975 355.262 535.182 362.126C552.758 377.337 575.023 380.407 597.914 378.378C609.338 377.364 620.736 375.875 632.201 376.938C636.825 377.376 641.389 378.374 645.909 379.348C650.845 380.399 655.105 382.674 659.652 384.91C669.116 389.557 676.795 397.792 680.44 407.977C682.275 413.099 682.279 418.522 682.289 423.893C682.301 431.843 681.307 437.692 675.328 442.998C671.289 446.548 666.645 449.382 661.931 452.054C657.293 454.699 652.513 456.821 648.058 459.8C639.694 465.837 631.791 472.209 623.872 478.761C608.2 491.745 593.367 505.709 579.197 520.326C565.033 534.965 552.178 550.546 541.137 567.572C530.102 584.595 521.331 602.932 514.264 622.19C507.718 639.985 502.699 658.292 500.538 677.206C499.141 689.153 498.096 701.059 498.739 713.143C499.337 724.529 501.189 736.001 498.645 747.191C495.606 760.709 490.359 774.241 482.45 785.933C462.495 818.679 426.603 838.519 387.224 839.826C371.945 840.291 357.829 843.172 348.089 857.231C341.371 866.934 339.871 879.144 339.35 890.717C338.833 902.146 339.135 913.594 339.419 925.034C339.718 936.995 340.083 948.971 340.625 960.922C341.416 979.205 342.54 997.468 343.761 1015.72C346.254 1052.41 348.709 1089.11 351.211 1125.79C353.591 1160.53 355.477 1195.32 359.663 1229.95C361.694 1246.84 364.895 1265.33 372.931 1280.91C380.435 1295.36 391.837 1306.89 406.166 1313.11C433.034 1325.19 466.556 1320.66 495.742 1316.31C513.713 1313.65 531.534 1313 549.548 1311.98C595.628 1309.59 641.459 1311.08 687.524 1309.89C734.988 1308.66 782.461 1312.1 829.775 1307.4C836.15 1306.81 842.506 1305.9 848.829 1305.08C872.253 1302.22 888.84 1285.46 894.359 1263.15C900.095 1239.8 898.483 1214.58 897.517 1190.87C896.853 1173.32 895.481 1155.79 895.722 1138.24C896.19 1106.04 896.431 1073.73 896.69 1041.54C897.111 989.977 896.691 938.279 895.678 886.708C894.717 837.664 892.79 788.79 891.58 739.78C891.517 736.735 891.412 733.705 891.287 730.588C891.083 725.755 893.167 721.057 894.13 716.366C897.705 700.28 899.369 683.773 897.341 667.264C895.305 650.65 890.404 635.523 884.257 620.042C874.062 594.841 859.657 573.603 843.399 553.543C838.191 546.971 832.507 540.667 826.805 534.507C806.453 512.263 784.64 491.257 761.54 471.833C748.401 460.813 734.214 451.133 720.364 441.091C709.351 433.251 698.403 425.307 687.113 417.841C677.342 411.441 667.71 404.77 657.677 399.082C650.319 394.916 642.545 391.339 635.172 386.863C627.841 382.512 620.547 379.112 612.658 376.119C603.755 372.718 594.32 371.075 584.989 369.524C582.318 369.066 579.628 369.041 576.977 368.435C574.38 367.817 571.745 366.911 569.237 366.108C564.308 364.533 559.466 363.087 554.3 363.147C548.917 363.21 543.877 363.525 538.78 365.122C534.407 366.476 530.537 368.417 526.773 370.682C516.128 377.413 507.138 386.01 497.487 393.676C487.782 401.425 478.975 407.71 471.151 412.621C456.864 421.626 441.455 427.724 424.371 428.272C414.011 428.587 404.299 427.388 395.099 422.618C391.924 420.991 389.055 418.93 386.272 416.991C373.662 408.835 360.85 401.025 348.191 392.946C336.025 385.14 323.897 377.239 311.537 369.785C299.808 362.67 287.583 356.807 272.989 356.163C265.387 355.808 258.362 356.524 250.938 357.364C235.236 359.112 219.433 361.425 203.834 363.306C195.968 364.272 188.184 366.032 180.722 368.333C173.581 370.355 167.835 372.333 158.181 376.311C155.853 377.236 153.388 377.775 151.073 378.466C149.643 379.214 148.277 380.102 146.912 380.91C140.37 385.193 137.672 391.856 136.327 399.451C135.67 403.313 135.53 407.205 135.51 411.107C135.443 423.746 135.87 436.269 136.378 448.9C137.274 471.206 138.869 493.462 140.332 515.753C142.774 552.261 145.717 588.797 147.671 625.349C148.803 647.588 149.736 669.841 150.751 692.082C152.953 738.747 155.207 785.41 157.211 832.085C158.907 871.176 160.354 910.28 161.793 949.384C163.199 987.667 164.17 1025.97 165.691 1064.24C166.506 1084.2 167.446 1104.15 168.013 1124.13C168.714 1148.68 169.858 1173.21 170.128 1197.77C170.263 1209.56 170.391 1222.87 167.929 1234.5C166.58 1240.88 163.292 1248.39 158.265 1252.29C153.56 1255.97 145.262 1257.8 139.455 1257.56C131.921 1257.23 125.29 1254.74 119.316 1250.08C110.449 1243.21 104.725 1232.69 101.079 1222.17C96.6214 1209.16 96.3684 1194.3 95.4574 1180.72C94.5464 1167.02 93.2794 1153.31 92.5164 1139.57C91.7164 1125.09 91.2744 1110.56 90.6894 1096.06C89.8397 1074.75 88.2214 1053.38 87.3214 1032.03C85.8713 999.183 84.7203 966.341 83.6643 933.484C82.6783 901.927 81.9233 870.357 80.8913 838.8C79.8593 807.251 78.6823 775.729 77.5343 744.185C76.1183 705.845 74.6233 667.499 73.3703 629.139C72.5763 604.74 72.3653 580.32 71.0963 555.952C70.3783 541.987 69.3903 532.043 67.9993 523.078C66.9723 516.544 65.5913 510.465 62.5163 504.501C59.1623 497.887 54.4723 491.315 46.8933 487.839C40.4993 484.899 33.4593 484.422 26.6003 483.928C19.8663 483.408 13.0703 483.233 6.30728 482.891"
-                stroke="#0D0C22"
-                stroke-width="4.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M439.357 574.47C439.333 574.467 439.31 574.463 439.287 574.458C439.279 574.502 439.266 574.546 439.251 574.589C439.322 574.575 439.393 574.539 439.445 574.488L439.357 574.47Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M439.445 574.488C439.407 574.53 439.357 574.558 439.303 574.568L439.251 574.589C439.268 574.595 439.286 574.598 439.303 574.6C439.354 574.579 439.403 574.539 439.445 574.488Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M452.26 572.425C452.447 571.378 452.516 570.374 452.571 569.957C452.497 570.379 452.391 570.797 452.26 571.206C452.116 571.659 451.717 572.186 451.364 572.507C451.366 572.66 451.447 572.783 451.557 572.878C451.868 572.788 452.045 572.516 452.26 572.425Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M451.557 572.878C451.402 572.914 451.246 572.916 451.09 572.885C451.224 573.024 451.404 573.12 451.609 573.155C451.636 573.023 451.616 572.943 451.557 572.878Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M442.971 583.776C442.983 583.819 443.002 583.861 443.025 583.9C443.123 583.964 443.244 583.996 443.368 583.993C443.223 583.907 443.098 583.867 442.971 583.776Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M711.281 590.845C711.281 590.715 711.251 590.593 711.249 590.463C711.117 590.552 711.161 590.699 711.219 590.845H711.281Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M602.711 583.786C603.171 583.975 603.608 584.144 604.061 584.34C603.535 583.872 602.99 583.444 602.401 583.063C602.503 583.283 602.605 583.528 602.711 583.786Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M624.115 588.625L623.95 588.245C623.564 587.757 623.182 587.264 622.779 586.791C623.188 587.477 623.636 588.098 624.115 588.625Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M444.865 575.249L444.536 574.76C444.638 575.037 444.753 575.262 444.865 575.249Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M593.284 581.468C593.353 581.436 593.42 581.4 593.485 581.358C593.319 581.307 593.163 581.237 593.012 581.172C593.104 581.267 593.194 581.367 593.284 581.468Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M438.314 575.53C438.342 575.726 438.366 575.877 438.391 575.975C438.429 575.918 438.456 575.856 438.473 575.79C438.434 575.701 438.387 575.611 438.314 575.53Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M453.8 573.225C453.8 573.104 453.675 573.079 453.649 573.225H453.8Z"
-                fill="#0D0C22"
-              ></path>
-              <path
-                d="M441.524 573.637C441.365 573.116 441.171 572.704 440.935 572.214C441.13 572.674 441.322 573.135 441.524 573.637Z"
-                fill="#0D0C22"
-              ></path>
-            </svg>
-            <span style="margin-left: 8px">Buy me a coffee</span>
+    <!-- About Tab -->
+    <div id="about" class="tab-content">
+      <div class="settings-group">
+        <h2>About Auto Refresh</h2>
+        <div style="display: flex; align-items: center; margin-bottom: 16px">
+          <img
+            src="icons/icon48.png"
+            width="48"
+            height="48"
+            style="margin-right: 16px"
+            alt="Auto Refresh Icon"
+          />
+          <div>
+            <div style="font-weight: 600; font-size: 18px">Auto Refresh</div>
+            <div style="font-size: 14px; color: var(--muted-text)">
+              Version 1.5.0
+            </div>
           </div>
-        </a>
+        </div>
+
+        <p>
+          Auto Refresh automatically refreshes web pages at custom intervals or
+          based on specific conditions.
+        </p>
+
+        <div style="margin-top: 20px">
+          <h3>Features</h3>
+          <ul>
+            <li>Set custom refresh intervals</li>
+            <li>Conditional refreshing based on page content</li>
+            <li>Smart resource monitoring for developers</li>
+            <li>Form data protection</li>
+            <li>Sound notifications and visual indicators</li>
+          </ul>
+        </div>
+
+        <div style="margin-top: 16px">
+          <a
+            href="feedback.html"
+            class="secondary"
+            style="text-decoration: none; color: var(--primary-color)"
+          >
+            Report a Bug or Request a Feature
+          </a>
+        </div>
+      </div>
+
+      <div class="settings-group donation-section">
+        <h2>Support Development</h2>
+
+        <p style="margin-bottom: 20px">
+          Love Auto Refresh? Consider supporting future development by buying me
+          a coffee!
+        </p>
+
+        <div style="text-align: center; margin: 20px 0">
+          <a
+            href="https://www.buymeacoffee.com/nxan2911i"
+            target="_blank"
+            class="custom-coffee-button"
+          >
+            <div class="coffee-button-content">
+              <img
+                src="icons/coffee-cup.svg"
+                width="20"
+                height="20"
+                alt="Coffee cup icon"
+              />
+              <span style="margin-left: 8px">Buy me a coffee</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
 
-    <!-- Google Auto ads will place ads automatically throughout the page -->
+    <!-- Auto-switching ads container -->
+    <div id="ad-rotation-container">
+      <!-- Will be populated by monetization.js with auto-switching ads -->
+    </div>
 
     <div class="button-row">
       <button id="resetButton" class="secondary">Reset to Defaults</button>
@@ -567,16 +942,14 @@
     </div>
 
     <div id="statusMessage" class="status"></div>
-    <link rel="stylesheet" href="ad-styles.css" />
 
     <!-- Add legal links -->
     <div class="legal-links">
       <a href="terms.html">Terms of Service</a> |
       <a href="privacy.html">Privacy Policy</a> |
-      <a href="refund.html">Refund Policy</a>
     </div>
 
-    <!-- Remove the Buy Me A Coffee widget script that's causing the CSP violation -->
+    <link rel="stylesheet" href="ad-styles.css" />
     <script src="settings.js"></script>
     <script type="module" src="monetization.js"></script>
   </body>

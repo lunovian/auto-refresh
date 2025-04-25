@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto Refresh - Bug Reports & Feature Requests</title>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #81b622;
+        --primary-hover: #699913;
+        --success-color: #699913;
+        --bg-color: #fafafa;
+        --card-bg: #ffffff;
+        --text-color: #333;
+        --border-radius: 8px;
+        --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+        width: 100%;
+        max-width: 700px;
+        padding: 24px;
+        margin: 0 auto;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.5;
+      }
+
+      h1 {
+        margin-top: 0;
+        font-size: 24px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        color: var(--primary-color);
+        margin-bottom: 16px;
+      }
+
+      h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 0;
+        margin-bottom: 16px;
+        color: var(--primary-color);
+      }
+
+      .card {
+        margin-bottom: 24px;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        background-color: var(--card-bg);
+        box-shadow: var(--shadow);
+        transition: box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+        background-color: white;
+        transition: all 0.3s ease;
+        font-family: "Inter", sans-serif;
+      }
+
+      input[type="text"]:focus,
+      input[type="email"]:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(129, 182, 34, 0.2);
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .button-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      button.primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      button.primary:hover {
+        background-color: var(--primary-hover);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .status {
+        margin-top: 16px;
+        padding: 12px;
+        border-radius: 4px;
+        display: none;
+        font-size: 14px;
+      }
+
+      .status.success {
+        display: block;
+        background-color: #edf5e1;
+        color: #4d7010;
+        border-left: 4px solid #81b622;
+      }
+
+      .status.error {
+        display: block;
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+      }
+
+      .hint-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 6px;
+        font-style: italic;
+      }
+
+      .tab-container {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 24px;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.3s ease;
+        border-bottom: 2px solid transparent;
+      }
+
+      .tab.active {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .info-box {
+        background-color: #f3f9e7;
+        border-left: 4px solid var(--primary-color);
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .info-box p {
+        margin: 0 0 10px 0;
+      }
+
+      .info-box p:last-child {
+        margin-bottom: 0;
+      }
+
+      .version-info {
+        font-size: 12px;
+        color: #888;
+        margin-top: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .checkmark {
+        color: var(--primary-color);
+        margin-right: 4px;
+      }
+
+      .platform-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .platform-badge {
+        background-color: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+      }
+
+      .platform-badge img {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+      }
+
+      .github-link {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--primary-color);
+        font-weight: 500;
+        font-size: 14px;
+        margin-top: 15px;
+        transition: all 0.2s ease;
+      }
+
+      .github-link:hover {
+        text-decoration: underline;
+        color: var(--primary-hover);
+      }
+
+      .github-link svg {
+        margin-right: 6px;
+      }
+
+      .legal-links {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .legal-links a {
+        color: #666;
+        text-decoration: none;
+        margin: 0 8px;
+      }
+
+      .legal-links a:hover {
+        text-decoration: underline;
+        color: var(--primary-color);
+      }
+
+      /* Additional styling for new features */
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        font-weight: 400;
+        cursor: pointer;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 8px;
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary-color);
+        cursor: pointer;
+      }
+
+      .radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+      }
+
+      .radio-item {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 15px;
+      }
+
+      .radio-item input[type="radio"] {
+        accent-color: var(--primary-color);
+        margin-right: 5px;
+      }
+
+      .severity-label {
+        font-size: 13px;
+        padding: 3px 8px;
+        border-radius: 3px;
+        display: inline-block;
+        font-weight: 500;
+      }
+
+      .severity-critical {
+        background-color: #ffebee;
+        color: #c62828;
+      }
+
+      .severity-high {
+        background-color: #fff3e0;
+        color: #e65100;
+      }
+
+      .severity-medium {
+        background-color: #fffde7;
+        color: #f9a825;
+      }
+
+      .severity-low {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .custom-file-upload {
+        display: inline-block;
+        padding: 8px 12px;
+        cursor: pointer;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        transition: all 0.2s ease;
+        font-size: 14px;
+      }
+
+      .custom-file-upload:hover {
+        background-color: #e0e0e0;
+      }
+
+      .file-preview {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .file-item {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f5f5f5;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .file-item .remove-file {
+        color: #999;
+        margin-left: 5px;
+        cursor: pointer;
+      }
+
+      .file-item .remove-file:hover {
+        color: #d32f2f;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .form-col {
+        flex: 1;
+      }
+
+      @media (max-width: 650px) {
+        .form-row {
+          flex-direction: column;
+          gap: 5px;
+        }
+      }
+
+      .category-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .category-tag {
+        background-color: #f0f0f0;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+      }
+
+      .category-tag:hover {
+        background-color: #e0e0e0;
+      }
+
+      .category-tag.selected {
+        background-color: rgba(129, 182, 34, 0.1);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      <img
+        src="icons/icon48.png"
+        width="32"
+        height="32"
+        alt="Auto Refresh"
+        style="margin-right: 12px"
+      />
+      <span>Bug Reports & Feature Requests</span>
+    </h1>
+
+    <div class="version-info">
+      <span class="checkmark">✓</span>
+      <span>Version 1.0</span>
+      <span style="margin: 0 8px">•</span>
+      <span id="user-count">10,000+ users</span>
+    </div>
+
+    <div class="platform-info">
+      <div class="platform-badge">
+        <img src="icons/chrome.svg" alt="Chrome" />
+        <span>Chrome</span>
+      </div>
+      <div class="platform-badge">
+        <img src="icons/edge.svg" alt="Edge" />
+        <span>Edge</span>
+      </div>
+      <div class="platform-badge">
+        <img src="icons/brave.svg" alt="Brave" />
+        <span>Brave</span>
+      </div>
+      <div class="platform-badge">
+        <img src="icons/opera.svg" alt="Opera" />
+        <span>Opera</span>
+      </div>
+    </div>
+
+    <div class="tab-container">
+      <button class="tab active" data-tab="bug-report">Report a Bug</button>
+      <button class="tab" data-tab="feature-request">Request a Feature</button>
+      <button class="tab" data-tab="github">GitHub</button>
+    </div>
+
+    <div id="bug-report" class="tab-content active">
+      <div class="card">
+        <h2>Submit a Bug Report</h2>
+
+        <div class="info-box">
+          <p>
+            <strong>Before submitting:</strong> Please check if your issue has
+            already been reported in our
+            <a
+              href="https://github.com/lunovian/auto-refresh/issues"
+              target="_blank"
+              >GitHub issue tracker</a
+            >.
+          </p>
+          <p>
+            The more details you provide, the faster we can fix the problem!
+          </p>
+        </div>
+
+        <form id="bug-form">
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="bug-email">Your Email (optional)</label>
+                <input
+                  type="email"
+                  id="bug-email"
+                  placeholder="email@example.com"
+                />
+                <div class="hint-text">
+                  We'll only use this to follow up on your report if needed
+                </div>
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="bug-browser">Browser & Version</label>
+                <input
+                  type="text"
+                  id="bug-browser"
+                  placeholder="e.g., Chrome 123.0.6312.59"
+                />
+                <div class="hint-text" id="browser-info-hint">
+                  Auto-detected: click to update if incorrect
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bug-title">Issue Title</label>
+            <input
+              type="text"
+              id="bug-title"
+              placeholder="Brief summary of the issue (e.g., 'Auto refresh stops working after changing tabs')"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Bug Category (select all that apply)</label>
+            <div class="category-tags">
+              <div class="category-tag" data-category="ui">UI/Display</div>
+              <div class="category-tag" data-category="functionality">
+                Functionality
+              </div>
+              <div class="category-tag" data-category="performance">
+                Performance
+              </div>
+              <div class="category-tag" data-category="compatibility">
+                Compatibility
+              </div>
+              <div class="category-tag" data-category="crash">Crash/Freeze</div>
+              <div class="category-tag" data-category="settings">Settings</div>
+              <div class="category-tag" data-category="other">Other</div>
+            </div>
+            <input
+              type="hidden"
+              id="bug-categories"
+              name="categories"
+              value=""
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Bug Severity</label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="bug-severity" value="low" />
+                <span class="severity-label severity-low">Low</span>
+              </label>
+              <label class="radio-item">
+                <input
+                  type="radio"
+                  name="bug-severity"
+                  value="medium"
+                  checked
+                />
+                <span class="severity-label severity-medium">Medium</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="bug-severity" value="high" />
+                <span class="severity-label severity-high">High</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="bug-severity" value="critical" />
+                <span class="severity-label severity-critical">Critical</span>
+              </label>
+            </div>
+            <div class="hint-text">
+              Critical = Extension unusable, High = Major feature broken, Medium
+              = Feature partially works, Low = Minor inconvenience
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bug-steps">Steps to Reproduce</label>
+            <textarea
+              id="bug-steps"
+              placeholder="1. Open the Auto Refresh extension
+2. Set the timer to X seconds
+3. Click on Start Auto Refresh
+4. Switch to another tab
+5. Expected: Timer continues in background
+6. Actual: Timer stops working"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="bug-expected">Expected Behavior</label>
+                <textarea
+                  id="bug-expected"
+                  placeholder="Describe what should have happened if the feature was working correctly."
+                ></textarea>
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="bug-actual">Actual Behavior</label>
+                <textarea
+                  id="bug-actual"
+                  placeholder="Describe what actually happened instead - be specific about any error messages."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Screenshots/Files (optional)</label>
+            <label class="custom-file-upload">
+              <input
+                type="file"
+                id="bug-attachments"
+                style="display: none"
+                multiple
+                accept="image/*,.pdf,.txt,.log"
+              />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                style="vertical-align: middle; margin-right: 5px"
+              >
+                <path
+                  fill="currentColor"
+                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
+                />
+              </svg>
+              Select Files
+            </label>
+            <div class="file-preview" id="bug-file-preview"></div>
+            <div class="hint-text">
+              Screenshots help us understand the issue faster (max 5MB per file)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="bug-reproducible" checked />
+              <span>This bug happens consistently (I can reproduce it)</span>
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button type="submit" class="primary">Submit Bug Report</button>
+          </div>
+        </form>
+
+        <div id="bug-status" class="status"></div>
+      </div>
+    </div>
+
+    <div id="feature-request" class="tab-content">
+      <div class="card">
+        <h2>Request a New Feature</h2>
+
+        <div class="info-box">
+          <p>Have an idea that would make Auto Refresh better? Let us know!</p>
+          <p>
+            Please be as specific as possible about how the feature would work.
+          </p>
+        </div>
+
+        <form id="feature-form">
+          <div class="form-group">
+            <label for="feature-email">Your Email (optional)</label>
+            <input
+              type="email"
+              id="feature-email"
+              placeholder="email@example.com"
+            />
+            <div class="hint-text">
+              We'll only use this to follow up on your request if needed
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="feature-title">Feature Title</label>
+            <input
+              type="text"
+              id="feature-title"
+              placeholder="Brief summary of the feature (e.g., 'Add custom sound notifications for refresh events')"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Feature Category</label>
+            <div class="category-tags">
+              <div class="category-tag" data-category="ui">UI Improvement</div>
+              <div class="category-tag" data-category="functionality">
+                New Functionality
+              </div>
+              <div class="category-tag" data-category="performance">
+                Performance
+              </div>
+              <div class="category-tag" data-category="integration">
+                Integration
+              </div>
+              <div class="category-tag" data-category="accessibility">
+                Accessibility
+              </div>
+              <div class="category-tag" data-category="other">Other</div>
+            </div>
+            <input
+              type="hidden"
+              id="feature-categories"
+              name="categories"
+              value=""
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="feature-description">Feature Description</label>
+            <textarea
+              id="feature-description"
+              placeholder="Describe your proposed feature in detail. How should it work? What options should it have? How would users interact with it?"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="feature-use-case">Use Case</label>
+            <textarea
+              id="feature-use-case"
+              placeholder="Explain when and how this feature would be useful in real-world scenarios. What problem would it solve for you?"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Feature Priority</label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input
+                  type="radio"
+                  name="feature-priority"
+                  value="low"
+                  checked
+                />
+                <span>Would be nice</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="feature-priority" value="medium" />
+                <span>Important</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="feature-priority" value="high" />
+                <span>Critical need</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Visual Example (optional)</label>
+            <label class="custom-file-upload">
+              <input
+                type="file"
+                id="feature-attachments"
+                style="display: none"
+                multiple
+                accept="image/*,.pdf"
+              />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                style="vertical-align: middle; margin-right: 5px"
+              >
+                <path
+                  fill="currentColor"
+                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
+                />
+              </svg>
+              Upload Sketches/Mockups
+            </label>
+            <div class="file-preview" id="feature-file-preview"></div>
+            <div class="hint-text">
+              A sketch, mockup or screenshot helps us understand your idea
+              better
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button type="submit" class="primary">
+              Submit Feature Request
+            </button>
+          </div>
+        </form>
+
+        <div id="feature-status" class="status"></div>
+      </div>
+    </div>
+
+    <div id="github" class="tab-content">
+      <div class="card ad-container">
+        <!-- Will be populated by monetization.js with auto-switching ads -->
+        <div id="ad-rotation-container"></div>
+      </div>
+
+      <div class="card">
+        <h2>Contribute on GitHub</h2>
+
+        <p>
+          Auto Refresh is an open-source project. You can contribute directly on
+          GitHub:
+        </p>
+
+        <a
+          href="https://github.com/lunovian/auto-refresh"
+          target="_blank"
+          class="github-link"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2C6.477 2 2 6.477 2 12C2 16.419 4.865 20.166 8.84 21.489C9.34 21.581 9.52 21.272 9.52 21.007C9.52 20.769 9.512 20.139 9.508 19.308C6.726 19.91 6.139 17.97 6.139 17.97C5.685 16.836 5.028 16.528 5.028 16.528C4.132 15.908 5.097 15.92 5.097 15.92C6.094 15.99 6.628 16.947 6.628 16.947C7.52 18.493 8.97 18.018 9.54 17.762C9.631 17.134 9.889 16.699 10.175 16.42C7.955 16.138 5.62 15.279 5.62 11.535C5.62 10.448 6.01 9.563 6.647 8.872C6.545 8.621 6.204 7.622 6.747 6.222C6.747 6.222 7.587 5.954 9.497 7.273C10.293 7.049 11.151 6.937 12 6.933C12.849 6.937 13.707 7.049 14.504 7.273C16.413 5.954 17.252 6.222 17.252 6.222C17.796 7.622 17.455 8.621 17.353 8.872C17.991 9.563 18.379 10.448 18.379 11.535C18.379 15.29 16.041 16.136 13.813 16.412C14.172 16.75 14.49 17.43 14.49 18.47C14.49 20 14.476 20.677 14.476 21.007C14.476 21.275 14.653 21.587 15.162 21.487C19.134 20.162 22 16.418 22 12C22 6.477 17.523 2 12 2Z"
+              fill="currentColor"
+            />
+          </svg>
+          View project on GitHub
+        </a>
+
+        <p style="margin-top: 24px">On GitHub you can:</p>
+        <ul>
+          <li>Report bugs and request features using GitHub Issues</li>
+          <li>Contribute code via Pull Requests</li>
+          <li>Star the project to show your support</li>
+          <li>Fork the project to make your own version</li>
+        </ul>
+
+        <div class="info-box" style="margin-top: 30px">
+          <p>
+            <strong>Developer?</strong> Pull requests are always welcome! Check
+            out our
+            <a
+              href="https://github.com/lunovian/auto-refresh/CONTRIBUTING.md"
+              target="_blank"
+              >contribution guidelines</a
+            >.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal links -->
+    <div class="legal-links">
+      <a href="terms.html">Terms of Service</a> |
+      <a href="privacy.html">Privacy Policy</a> |
+    </div>
+
+    <script src="feedback.js"></script>
+    <script type="module" src="monetization.js"></script>
+  </body>
+</html>

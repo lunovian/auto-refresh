@@ -29,15 +29,52 @@ function getRemainingTime(tabId) {
   }
   
   const now = Date.now();
-  const remaining = Math.max(0, Math.ceil((timerData.endTime - now) / 1000));
-  const total = timerData.totalSeconds;
+  const remainingMs = Math.max(0, timerData.endTime - now);
+  let remaining;
+  
+  // Convert remaining time based on the selected unit
+  switch(timerData.unit) {
+    case 'milliseconds':
+      remaining = remainingMs;
+      break;
+    case 'minutes':
+      remaining = Math.ceil(remainingMs / (1000 * 60));
+      break;
+    case 'hours':
+      remaining = Math.ceil(remainingMs / (1000 * 60 * 60));
+      break;
+    case 'seconds':
+    default:
+      remaining = Math.ceil(remainingMs / 1000);
+      break;
+  }
+  
+  // Calculate total based on the same unit
+  let total;
+  switch(timerData.unit) {
+    case 'milliseconds':
+      total = timerData.totalInterval;
+      break;
+    case 'minutes':
+      total = Math.ceil(timerData.totalInterval / (1000 * 60));
+      break;
+    case 'hours':
+      total = Math.ceil(timerData.totalInterval / (1000 * 60 * 60));
+      break;
+    case 'seconds':
+    default:
+      total = Math.ceil(timerData.totalInterval / 1000);
+      break;
+  }
+  
   const percentage = Math.round((remaining / total) * 100);
   
   return {
     remaining: remaining,
     total: total,
     unit: timerData.unit,
-    percentage: percentage
+    percentage: percentage,
+    remainingMs: remainingMs // Also return the raw milliseconds for more precise calculations
   };
 }
 
@@ -79,6 +116,9 @@ function incrementRefreshCount(tabId) {
     count: newCount,
     tabId: tabId,
     playSound: true  // Add this flag so the UI can play a sound if needed
+  }).catch(error => {
+    console.log("Error sending updateRefreshCount message:", error);
+    // Silently fail - this is expected when no receivers are listening
   });
 
   // Reset the countdown timer after refresh
@@ -198,18 +238,64 @@ async function askToContinueIteration(tabId) {
 // Check if refresh should occur based on conditional rules
 async function checkConditionalRefresh(tabId, settings) {
   try {
+    console.log("Running conditional check with settings:", JSON.stringify(settings));
+    
     const results = await chrome.scripting.executeScript({
       target: { tabId },
       function: (settings) => {
-        const target = settings.selector ? 
-          document.querySelector(settings.selector) : 
-          document.body;
-          
-        if (!target) return { shouldRefresh: false, reason: "Target element not found" };
+        // For debugging within the injected script
+        console.log("Executing conditional check in page context:", settings);
         
-        const content = settings.selector ? target.textContent : document.body.innerText;
-        const normalizedContent = content.toLowerCase();
-        const normalizedCondition = settings.conditionValue.toLowerCase();
+        let target = null;
+        let targetDebug = { found: false };
+        
+        // Try to find the element with the selector
+        if (settings.selector && settings.selector.trim() !== '') {
+          try {
+            target = document.querySelector(settings.selector);
+            targetDebug = {
+              found: !!target,
+              selector: settings.selector,
+              matchesCount: document.querySelectorAll(settings.selector).length
+            };
+          } catch (selectorError) {
+            console.error("Invalid selector:", settings.selector, selectorError);
+            targetDebug = { found: false, error: selectorError.message };
+          }
+        }
+        
+        // Fallback to body if no target or no selector specified
+        if (!target) {
+          target = document.body;
+          if (!targetDebug.found) {
+            targetDebug = { found: true, element: "document.body (fallback)" };
+          }
+        }
+          
+        if (!target) return { 
+          shouldRefresh: false, 
+          reason: "Target element not found", 
+          debug: targetDebug 
+        };
+        
+        // Get content based on the element type and selector - more robust extraction
+        let content;
+        if (settings.selector) {
+          content = target.textContent || target.innerText || '';
+        } else {
+          // Use innerText for body to get only visible text
+          content = document.body.innerText || document.body.textContent || '';
+        }
+        
+        const normalizedContent = (content || '').toLowerCase();
+        const normalizedCondition = (settings.conditionValue || '').toLowerCase();
+        
+        // Store additional debug info
+        const contentDebug = {
+          contentLength: content.length,
+          conditionLength: settings.conditionValue.length,
+          contentSnippet: content.substring(0, 100) + (content.length > 100 ? '...' : '')
+        };
         
         let shouldRefresh = false;
         let reason = "";
@@ -228,9 +314,17 @@ async function checkConditionalRefresh(tabId, settings) {
               `Text "${settings.conditionValue}" is still present`;
             break;
           case 'textChanged':
-            // Store the initial content in a global variable for future comparison
+            // Store the initial content in a more persistent way
             if (!window._lastCheckedContent) {
               window._lastCheckedContent = normalizedContent;
+              
+              // Also store in sessionStorage for persistence
+              try {
+                sessionStorage.setItem('_autoRefreshLastContent', normalizedContent);
+              } catch (e) {
+                console.warn("Could not save to sessionStorage:", e);
+              }
+              
               shouldRefresh = false;
               reason = "Initial content snapshot taken";
             } else {
@@ -242,17 +336,49 @@ async function checkConditionalRefresh(tabId, settings) {
               // Update the snapshot for future comparisons
               if (shouldRefresh) {
                 window._lastCheckedContent = normalizedContent;
+                
+                // Also update in sessionStorage
+                try {
+                  sessionStorage.setItem('_autoRefreshLastContent', normalizedContent);
+                } catch (e) {
+                  console.warn("Could not save to sessionStorage:", e);
+                }
+              }
+            }
+            
+            // Try to recover previous content from sessionStorage on page loads
+            if (!window._lastCheckedContent && !shouldRefresh) {
+              try {
+                const storedContent = sessionStorage.getItem('_autoRefreshLastContent');
+                if (storedContent) {
+                  window._lastCheckedContent = storedContent;
+                  console.log("Recovered previous content from sessionStorage");
+                }
+              } catch (e) {
+                console.warn("Could not read from sessionStorage:", e);
               }
             }
             break;
         }
         
-        return { shouldRefresh, reason };
+        return { 
+          shouldRefresh, 
+          reason, 
+          debug: { 
+            targetInfo: targetDebug,
+            contentInfo: contentDebug,
+            timestamp: new Date().toISOString(),
+            conditionType: settings.conditionType,
+            conditionValue: settings.conditionValue
+          } 
+        };
       },
       args: [settings]
     });
     
-    return results[0]?.result || { shouldRefresh: false, reason: "Error executing script" };
+    const result = results[0]?.result || { shouldRefresh: false, reason: "Error executing script" };
+    console.log("Conditional check result:", result);
+    return result;
   } catch (error) {
     console.error("Error in conditional refresh check:", error);
     return { shouldRefresh: false, reason: "Error: " + error.message };
@@ -447,6 +573,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           
           // Refresh if the condition is met
           if (result.shouldRefresh) {
+            // Handle different actions after condition is met based on actionAfterMet setting
+            if (settings.actionAfterMet === 'stop') {
+              // Stop the refresh after the condition is met
+              stopRefreshForTab(tabId);
+              chrome.storage.local.set({ ['isActive_' + tabId]: false });
+              
+              // Show notification that auto-refresh was stopped due to condition
+              chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'icons/icon128.png',
+                title: 'Auto Refresh Stopped',
+                message: `Condition met: ${result.reason}. Auto-refresh has been stopped.`
+              });
+              
+              // Notify popup that auto-refresh has been stopped
+              chrome.runtime.sendMessage({
+                action: 'autoRefreshStopped',
+                tabId: tabId,
+                reason: result.reason
+              });
+              
+              return; // Exit the interval without refreshing
+            } 
+            else if (settings.actionAfterMet === 'notify') {
+              // Send notification but continue refreshing
+              chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'icons/icon128.png',
+                title: 'Condition Met',
+                message: `Condition met: ${result.reason}. The page will be refreshed.`
+              });
+            }
+            
+            // Perform the refresh unless we're in 'stop' mode (which returned early)
             await chrome.tabs.reload(tabId);
             incrementRefreshCount(tabId);
             
@@ -549,14 +709,53 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Additional message handler for other extension communication
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle settings page opening
-  if (message.action === 'openSettingsPage') {
-    // Use navigateTo instead of create when possible
-    if (sender.tab) {
-      chrome.tabs.update(sender.tab.id, { url: 'settings.html' });
-    } else {
-      chrome.tabs.create({ url: 'settings.html' });
+  if (message.action === 'openSettingsPage' || message.action === 'openSettings') {
+    try {
+      // Detect browser type for Edge-specific handling
+      const isEdge = navigator.userAgent.includes('Edg/');
+      
+      if (isEdge) {
+        // Edge-specific approach: always use tab creation to avoid popup blocking
+        chrome.tabs.create({ url: 'settings.html' }, (tab) => {
+          if (chrome.runtime.lastError) {
+            console.error("Error opening settings in Edge:", chrome.runtime.lastError);
+            // Try another fallback method
+            window.open('settings.html', '_blank');
+          }
+          sendResponse({ success: true, browser: 'edge' });
+        });
+      } else if (chrome.runtime.openOptionsPage) {
+        // Standard approach for Chrome/Firefox
+        chrome.runtime.openOptionsPage(() => {
+          if (chrome.runtime.lastError) {
+            console.warn("openOptionsPage failed:", chrome.runtime.lastError);
+            // Fallback for other browsers
+            chrome.tabs.create({ url: 'settings.html' });
+          }
+          sendResponse({ success: true, method: 'options_page' });
+        });
+      } else {
+        // Fallback for all browsers
+        if (sender.tab) {
+          chrome.tabs.update(sender.tab.id, { url: 'settings.html' }, () => {
+            sendResponse({ success: true, method: 'tab_update' });
+          });
+        } else {
+          chrome.tabs.create({ url: 'settings.html' }, () => {
+            sendResponse({ success: true, method: 'tab_create' });
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error opening settings page:", error);
+      // Last resort fallback
+      try {
+        window.open('settings.html', '_blank');
+        sendResponse({ success: true, method: 'window_open' });
+      } catch (fallbackError) {
+        sendResponse({ success: false, error: error.message + " | Fallback error: " + fallbackError.message });
+      }
     }
-    sendResponse({ success: true });
     return true; // Keep the message channel open
   }
   

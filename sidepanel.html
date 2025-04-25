@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Auto Refresh Settings</title>
+    <title>Auto Refresh</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script src="resource-checker.js"></script>
+    <script src="monetization.js"></script>
     <style>
       :root {
         --primary-color: #81b622;
+        --primary-hover: #699913;
+        --primary-light: rgba(129, 182, 34, 0.15);
+        --primary-dark: #558b2f;
         --success-color: #699913;
         --danger-color: #e74c3c;
         --warning-color: #f39c12;
@@ -18,8 +23,29 @@
         --bg-color: #ffffff;
         --card-bg: #f9f9f9;
         --text-color: #2c3e50;
+        --muted-text: #7f8c8d;
+        --border-color: #e0e0e0;
         --border-radius: 12px;
         --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      /* Dark mode variables */
+      .dark-mode {
+        --primary-color: #9fce4c;
+        --primary-hover: #b5da6e;
+        --primary-light: rgba(159, 206, 76, 0.15);
+        --primary-dark: #81b622;
+        --success-color: #81b622;
+        --danger-color: #ff6b6b;
+        --warning-color: #ffb142;
+        --neutral-color: #a5a5a5;
+        --bg-color: #1a1a1a;
+        --card-bg: #2d2d2d;
+        --text-color: #f0f0f0;
+        --muted-text: #b0b0b0;
+        --border-color: #444;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
       }
 
       * {
@@ -29,9 +55,7 @@
       }
 
       body {
-        font-family: "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-          "Noto Sans Arabic", "Noto Sans Thai", "Noto Sans Hebrew",
-          "Noto Sans Devanagari", "Inter", sans-serif;
+        font-family: "Inter", sans-serif;
         font-optical-sizing: auto;
         font-weight: 400;
         font-style: normal;
@@ -40,28 +64,76 @@
         background-color: var(--bg-color);
         height: 100vh;
         overflow-y: auto;
+        transition: var(--transition);
+      }
+
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
       }
 
       .app-title {
         font-size: 18px;
         font-weight: 600;
-        text-align: center;
-        margin-bottom: 16px;
         color: var(--primary-color);
         position: relative;
-        padding-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
-      .app-title::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        bottom: 0;
-        transform: translateX(-50%);
-        height: 3px;
-        width: 40px;
-        background-color: var(--primary-color);
-        border-radius: 2px;
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--neutral-color);
+        margin-left: 5px;
+        transition: var(--transition);
+      }
+
+      .status-dot.active {
+        background-color: var(--success-color);
+        box-shadow: 0 0 5px var(--success-color);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(105, 153, 19, 0.6);
+        }
+        70% {
+          box-shadow: 0 0 0 5px rgba(105, 153, 19, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(105, 153, 19, 0);
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .icon-button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: var(--transition);
+        color: var(--text-color);
+      }
+
+      .icon-button:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        transform: translateY(-2px);
       }
 
       .card {
@@ -70,538 +142,25 @@
         border-radius: var(--border-radius);
         box-shadow: var(--shadow);
         margin-bottom: 16px;
-        transition: all 0.3s ease;
+        transition: var(--transition);
       }
 
-      .status-panel .status-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
+      .card:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
 
-      .status-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-      }
-
-      .status-active {
-        background-color: var(--success-color);
-        color: white;
-      }
-
-      .status-inactive {
-        background-color: var(--neutral-color);
-        color: white;
-      }
-
-      .counter-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
-      .counter-icon {
-        font-size: 24px;
-        margin-right: 12px;
-        color: var(--primary-color);
-        width: 28px;
-        height: 28px;
-      }
-
-      .counter-icon svg {
-        filter: drop-shadow(0 1px 2px rgba(129, 182, 34, 0.3));
-      }
-
-      .counter {
-        font-size: 32px;
-        font-weight: 700;
-        color: var(--primary-color);
-        line-height: 1;
-      }
-
-      .counter-label {
-        font-size: 12px;
-        opacity: 0.7;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .next-refresh-container {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        flex-direction: column;
-      }
-
-      .next-refresh-wrapper {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .next-refresh {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-color);
-        width: 100%;
-      }
-
-      .timer-progress {
-        height: 6px;
-        width: 100%;
-        background-color: #e0e0e0;
-        border-radius: 3px;
-        margin-top: 8px;
-        overflow: hidden;
-        position: relative;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-        flex-grow: 1;
-      }
-
-      .timer-bar {
-        position: absolute;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          var(--primary-color),
-          var(--success-color)
-        );
-        left: 0;
-        width: 0%;
-        transition: width 0.5s linear;
-        border-radius: 3px;
-        box-shadow: 0 0 5px rgba(129, 182, 34, 0.5);
-      }
-
-      .timer-bar.pulse {
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          box-shadow: 0 0 5px rgba(129, 182, 34, 0.5);
-        }
-        50% {
-          box-shadow: 0 0 15px rgba(129, 182, 34, 0.8);
-        }
-        100% {
-          box-shadow: 0 0 5px rgba(129, 182, 34, 0.5);
-        }
-      }
-
-      .timer-label {
-        font-size: 12px;
-        color: var(--text-color);
-        margin-top: 4px;
-        text-align: right;
-        opacity: 0.8;
-        transition: opacity 0.3s ease;
-      }
-
-      .settings-section {
-        margin-bottom: 16px;
-      }
-
-      .settings-title {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 12px;
-        color: var(--primary-color);
-      }
-
-      .settings-group {
-        margin-bottom: 16px;
-      }
-
-      .form-group {
-        margin-bottom: 12px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 14px;
-        font-weight: 500;
-      }
-
-      .input-field {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        font-size: 14px;
-        transition: all 0.3s ease;
-      }
-
-      .input-field:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(129, 182, 34, 0.2);
-      }
-
-      .mode-selector {
-        display: flex;
-        background-color: #e9e9e9;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        padding: 4px;
-      }
-
-      .mode-option {
-        flex: 1;
-        text-align: center;
-        padding: 8px 0;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-      }
-
-      .mode-option.active {
-        background-color: white;
-        box-shadow: var(--shadow);
-      }
-
-      .btn {
-        width: 100%;
-        padding: 12px 15px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      }
-
-      .btn-icon {
-        margin-right: 10px;
-        width: 18px;
-        height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .btn-primary {
-        background-color: var(--primary-color);
-        color: white;
-      }
-
-      .btn-success {
-        background: linear-gradient(
-          145deg,
-          var(--primary-color),
-          var(--success-color)
-        );
-        color: white;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .btn-success::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.2),
-          transparent
-        );
-        transition: left 0.7s;
-      }
-
-      .btn-success:hover::before {
-        left: 100%;
-      }
-
-      .btn-danger {
-        background: linear-gradient(145deg, #e74c3c, #c0392b);
-        color: white;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .btn-danger::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.2),
-          transparent
-        );
-        transition: left 0.7s;
-      }
-
-      .btn-danger:hover::before {
-        left: 100%;
-      }
-
-      .btn:hover {
-        filter: brightness(1.1);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      }
-
-      .btn:hover .btn-icon svg {
-        transform: scale(1.1);
-      }
-
-      .btn:active {
-        transform: scale(0.98);
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .icon svg {
-        width: 100%;
-        height: 100%;
-        transition: transform 0.3s ease;
-      }
-
-      svg {
-        fill: currentColor;
-        stroke-width: 0;
-      }
-
-      /* Animation for refresh icon */
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .updated .counter-icon svg {
-        animation: spin 0.5s ease-out;
-      }
-
-      /* Conditional refresh styles */
-      .condition-input {
-        margin-bottom: 8px;
-      }
-
-      .checkbox-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
-        gap: 8px;
-        margin-top: 10px;
-      }
-
-      .checkbox-wrapper {
-        display: flex;
-        align-items: center;
-        background-color: #f1f1f1;
-        padding: 6px 8px;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-      }
-
-      .checkbox-wrapper:hover {
-        background-color: #e8e8e8;
-      }
-
-      .checkbox-wrapper input[type="checkbox"] {
-        margin-right: 6px;
-        accent-color: var(--primary-color);
-      }
-
-      .checkbox-label {
-        font-size: 12px;
-        font-weight: 500;
-        margin-left: 4px;
-        flex: 1;
-        text-align: center;
-      }
-
-      /* Custom checkbox styling */
-      .checkbox-wrapper input[type="checkbox"]:checked + .checkbox-label {
-        color: var(--primary-color);
-      }
-
-      .time-range {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-      }
-
-      .time-range input {
-        flex: 1;
-      }
-
-      .hint-text {
-        font-size: 11px;
-        color: #666;
-        margin-top: 4px;
-        font-style: italic;
-      }
-
-      .sub-option {
-        margin-top: 8px;
-        margin-left: 16px;
-        padding-left: 8px;
-        border-left: 2px solid #ddd;
-      }
-
-      .pill {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 11px;
-        margin: 2px;
-      }
-
-      .pill-primary {
-        background-color: rgba(
-          129,
-          182,
-          34,
-          0.15
-        ); /* Using primary-color with opacity */
-        color: #699913; /* Using success-color for text */
-      }
-
-      .pill-warning {
-        background-color: rgba(243, 156, 18, 0.15);
-        color: #d35400;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-5px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .mode-tab {
-        animation: fadeIn 0.3s ease;
-      }
-
-      /* Tab system */
-      .tab-content > div:not(.active) {
-        display: none;
-      }
-
-      .mode-option.active {
-        color: var(--primary-color);
-      }
-
-      /* Mode indicator */
-      .active-mode-indicator {
-        font-size: 11px;
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-
-      .indicator-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: var(--success-color);
-      }
-
-      .mode-display {
-        font-weight: 500;
-      }
-
-      /* Multimode selector */
-      .three-mode-selector {
-        display: flex;
-        background-color: #e9e9e9;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        padding: 3px;
-      }
-
-      .three-mode-selector .mode-option {
-        flex: 1;
-        text-align: center;
-        padding: 8px 0;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-      }
-
-      .settings-icon {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        cursor: pointer;
-        transition: transform 0.3s ease, filter 0.3s ease;
-        will-change: transform; /* Optimize for animations */
-      }
-
-      .settings-icon:hover {
-        transform: rotate(90deg);
-        filter: drop-shadow(0 0 3px var(--primary-color));
-      }
-
-      .settings-icon img {
-        transition: transform 0.3s ease;
-        backface-visibility: hidden; /* Prevent flickering during animation */
-      }
-
-      .settings-icon:hover img {
-        transform: scale(1.1);
-      }
-
-      .control-buttons {
-        margin-top: 16px;
-        display: flex;
-        gap: 10px;
-      }
-
-      /* Remove underline from Buy Me A Coffee button */
-      #bmc-button {
-        text-decoration: none;
-      }
-
-      /* Tab info display styles */
       .tab-info-container {
-        margin-bottom: 12px;
-        background-color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 16px;
+        background-color: rgba(255, 255, 255, 0.5);
         border-radius: 8px;
         padding: 10px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--border-color);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: var(--transition);
+      }
+
+      .dark-mode .tab-info-container {
+        background-color: rgba(45, 45, 45, 0.5);
       }
 
       .tab-info {
@@ -635,40 +194,697 @@
 
       .tab-url {
         font-size: 11px;
-        color: #666;
+        color: var(--muted-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-top: 2px;
       }
+
+      .refresh-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .counter-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .counter-icon {
+        font-size: 24px;
+        margin-right: 12px;
+        color: var(--primary-color);
+        width: 28px;
+        height: 28px;
+      }
+
+      .counter-icon svg {
+        filter: drop-shadow(0 1px 2px rgba(129, 182, 34, 0.3));
+      }
+
+      .counter {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+      }
+
+      .counter-label {
+        font-size: 12px;
+        color: var(--muted-text);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .quick-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .refresh-timer {
+        margin-bottom: 16px;
+      }
+
+      .next-refresh {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-color);
+        width: 100%;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .timer-value {
+        font-weight: 600;
+      }
+
+      .timer-progress {
+        height: 8px;
+        width: 100%;
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .timer-bar {
+        position: absolute;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--success-color)
+        );
+        left: 0;
+        width: 0%;
+        transition: width 0.5s linear;
+        border-radius: 4px;
+        box-shadow: 0 0 5px rgba(129, 182, 34, 0.2);
+      }
+
+      .timer-bar.pulse {
+        animation: pulse-timer 2s infinite;
+      }
+
+      @keyframes pulse-timer {
+        0% {
+          box-shadow: 0 0 5px rgba(129, 182, 34, 0.2);
+        }
+        50% {
+          box-shadow: 0 0 12px rgba(129, 182, 34, 0.4);
+        }
+        100% {
+          box-shadow: 0 0 5px rgba(129, 182, 34, 0.2);
+        }
+      }
+
+      .control-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 12px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-icon {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-success {
+        background: linear-gradient(
+          145deg,
+          var(--primary-color),
+          var(--success-color)
+        );
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-danger {
+        background: linear-gradient(145deg, var(--danger-color), #c0392b);
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+      }
+
+      .btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Fancy button hover effect */
+      .btn-success::before,
+      .btn-danger::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.7s;
+      }
+
+      .btn-success:hover::before,
+      .btn-danger:hover::before {
+        left: 100%;
+      }
+
+      /* Presets section */
+      .presets-section {
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .preset-button {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 12px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .preset-button:hover {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+      }
+
+      .preset-button.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+      }
+
+      /* Tab system */
+      .mode-selector {
+        display: flex;
+        background-color: rgba(224, 224, 224, 0.3);
+        border-radius: 8px;
+        margin-bottom: 16px;
+        padding: 4px;
+      }
+
+      .mode-option {
+        flex: 1;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: var(--transition);
+      }
+
+      .mode-option.active {
+        background-color: var(--card-bg);
+        box-shadow: var(--shadow);
+        color: var(--primary-color);
+      }
+
+      .mode-tab {
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .tab-content > div:not(.active) {
+        display: none;
+      }
+
+      /* Form elements */
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-color);
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        font-size: 14px;
+        transition: var(--transition);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px var(--primary-light);
+      }
+
+      .hint-text {
+        font-size: 11px;
+        color: var(--muted-text);
+        margin-top: 4px;
+        font-style: italic;
+      }
+
+      /* Hide when not active */
+      .hidden {
+        display: none;
+      }
+
+      /* Animations for timer */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .updated .counter-icon svg {
+        animation: spin 0.5s ease-out;
+      }
+
+      /* Toggle switch */
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .switch-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--border-color);
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .switch-slider {
+        background-color: var(--primary-color);
+      }
+
+      input:checked + .switch-slider:before {
+        transform: translateX(20px);
+      }
+
+      /* Collapsible section */
+      .collapsible-section {
+        margin-bottom: 8px;
+      }
+
+      .collapsible-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 6px;
+        background-color: rgba(224, 224, 224, 0.2);
+        transition: var(--transition);
+      }
+
+      .collapsible-header:hover {
+        background-color: rgba(224, 224, 224, 0.4);
+      }
+
+      .collapsible-title {
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--text-color);
+      }
+
+      .collapsible-icon {
+        transition: var(--transition);
+      }
+
+      .collapsible-content {
+        padding: 12px 8px 4px;
+        display: none;
+      }
+
+      .collapsible-open .collapsible-icon {
+        transform: rotate(180deg);
+      }
+
+      .collapsible-open .collapsible-content {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      /* Settings toggles */
+      .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .setting-label {
+        font-size: 14px;
+      }
+
+      /* Custom checkbox styling */
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        background-color: var(--bg-color);
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: var(--transition);
+        cursor: pointer;
+        border: 1px solid var(--border-color);
+      }
+
+      .checkbox-wrapper:hover {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+      }
+
+      .checkbox-wrapper input[type="checkbox"] {
+        margin-right: 6px;
+        accent-color: var(--primary-color);
+      }
+
+      .checkbox-label {
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 4px;
+      }
+
+      .checkbox-wrapper input[type="checkbox"]:checked + .checkbox-label {
+        color: var(--primary-color);
+      }
+
+      /* Legal links */
+      .legal-links {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted-text);
+      }
+
+      .legal-links a {
+        color: var(--muted-text);
+        text-decoration: none;
+        margin: 0 6px;
+        transition: var(--transition);
+      }
+
+      .legal-links a:hover {
+        color: var(--primary-color);
+      }
+
+      /* Sponsorship */
+      .sponsorship {
+        background-color: rgba(129, 182, 34, 0.05);
+        border-left: 4px solid var(--primary-color);
+        display: flex;
+        flex-direction: column;
+        transition: var(--transition);
+      }
+
+      .sponsorship-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+
+      .sponsor-title {
+        font-size: 15px;
+        margin-bottom: 4px;
+        color: var(--text-color);
+      }
+
+      .sponsor-description {
+        font-size: 13px;
+        color: var(--muted-text);
+        margin: 0;
+      }
+
+      .sponsor-contact {
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 8px;
+        color: var(--text-color);
+      }
+
+      .sponsor-contact a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .sponsor-contact a:hover {
+        text-decoration: underline;
+      }
+
+      .sponsor-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: nowrap;
+        width: 100%;
+      }
+
+      .sponsor-button {
+        flex: 1;
+        min-width: 100px;
+        margin: 0;
+        padding: 8px 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Keyboard shortcut hints */
+      .key-hint {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 11px;
+        font-family: monospace;
+        color: white;
+        border: 1px solid white;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        margin-left: 4px;
+      }
+
+      .dark-mode .key-hint {
+        background-color: rgba(159, 206, 76, 0.25);
+        color: #ffffff;
+      }
+
+      /* Tooltip */
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 120px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 4px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 11px;
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
     </style>
-    <!-- Remove translations.js reference -->
-    <!-- <script src="translations.js"></script> -->
-    <!-- Add resource checker script -->
-    <script src="resource-checker.js"></script>
   </head>
   <body>
-    <h1 class="app-title">
-      Auto Refresh
-      <div id="settingsButton" class="settings-icon">
+    <div class="app-header">
+      <h1 class="app-title">
         <img
-          src="icons/settings-gear.svg"
-          width="22"
-          height="22"
-          alt="Settings"
+          src="icons/icon16.png"
+          width="16"
+          height="16"
+          alt="Auto Refresh icon"
         />
-      </div>
-    </h1>
+        Auto Refresh
+        <span id="statusDot" class="status-dot"></span>
+      </h1>
 
-    <div class="card status-panel">
-      <div class="status-header">
-        <h3>Status</h3>
-        <span id="statusBadge" class="status-badge status-inactive">
-          Inactive
-        </span>
+      <div class="header-actions">
+        <button id="themeToggle" class="icon-button" title="Toggle dark mode">
+          <svg
+            id="darkIcon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M11.0174 2.80157C6.37072 3.29221 2.75 7.22328 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C16.7767 21.25 20.7078 17.6293 21.1984 12.9826C19.8717 14.6669 17.8126 15.75 15.5 15.75C11.4959 15.75 8.25 12.5041 8.25 8.5C8.25 6.18738 9.33315 4.1283 11.0174 2.80157ZM1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C12.7166 1.25 13.0754 1.82126 13.1368 2.27627C13.196 2.71398 13.0342 3.27065 12.531 3.57467C10.8627 4.5828 9.75 6.41182 9.75 8.5C9.75 11.6756 12.3244 14.25 15.5 14.25C17.5882 14.25 19.4172 13.1373 20.4253 11.469C20.7293 10.9658 21.286 10.804 21.7237 10.8632C22.1787 10.9246 22.75 11.2834 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12Z"
+              transform="translate(0 -3)"
+            />
+          </svg>
+          <svg
+            id="lightIcon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            style="display: none"
+          >
+            <path
+              d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3zM11 3V1h2v2h-2zm0 19v-2h2v2h-2zM3.515 5.636L4.929 4.222l1.414 1.414L4.93 7.05 3.515 5.636zm15.556 12.728l-1.414 1.414-1.414-1.414 1.414-1.414 1.414 1.414zM5.636 20.485l-1.414-1.414 1.414-1.414 1.414 1.414-1.414 1.414zM18.364 3.515l1.414 1.414-1.414 1.414-1.414-1.414 1.414-1.414zM23 11v2h-2v-2h2zM3 11v2H1v-2h2z"
+            />
+          </svg>
+        </button>
+        <button id="settingsButton" class="icon-button" title="Open settings">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+            ></path>
+          </svg>
+        </button>
       </div>
+    </div>
 
-      <!-- Add tab info display section -->
+    <!-- Add the missing ad rotation container -->
+    <div id="ad-rotation-container" class="card"></div>
+
+    <div class="card">
+      <!-- Tab information display -->
       <div id="tabInfoContainer" class="tab-info-container">
         <div class="tab-info">
           <div class="favicon-container">
@@ -687,30 +903,31 @@
         </div>
       </div>
 
-      <div class="counter-container">
-        <div class="counter-icon icon">
-          <svg
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-            stroke="none"
-          >
-            <path
-              d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.87 5.87 0 0 1 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"
-            />
-          </svg>
-        </div>
-        <div>
-          <div id="refreshCounter" class="counter">0</div>
-          <div class="counter-label">Total Refreshes</div>
+      <!-- Refresh stats -->
+      <div class="refresh-stats">
+        <div class="counter-container">
+          <div class="counter-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.87 5.87 0 0 1 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div id="refreshCounter" class="counter">0</div>
+            <div class="counter-label">Total Refreshes</div>
+          </div>
         </div>
       </div>
 
-      <div class="next-refresh-container">
-        <div class="next-refresh-wrapper">
-          <div id="nextRefresh" class="next-refresh"></div>
-          <div class="timer-progress">
-            <div id="timerBar" class="timer-bar"></div>
-          </div>
+      <!-- Timer Display -->
+      <div id="refreshTimerSection" class="refresh-timer">
+        <div class="next-refresh">
+          <span>Next refresh in:</span>
+          <span id="nextRefresh" class="timer-value">-</span>
+        </div>
+        <div class="timer-progress">
+          <div id="timerBar" class="timer-bar"></div>
         </div>
       </div>
 
@@ -719,196 +936,271 @@
         <button id="startRefresh" class="btn btn-success">
           <div class="btn-icon">
             <svg
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+              stroke="currentColor"
+              stroke-width="2"
             >
-              <path
-                d="M5 12H19M19 12L12 5M19 12L12 19"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M5 12H19M19 12L12 5M19 12L12 19"></path>
             </svg>
           </div>
           <span>Start Auto Refresh</span>
+          <span class="key-hint">Alt+R</span>
         </button>
+
         <button id="stopRefresh" class="btn btn-danger" style="display: none">
           <div class="btn-icon">
             <svg
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+              stroke="currentColor"
+              stroke-width="2"
             >
-              <path
-                d="M6 6L18 18M6 18L18 6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M6 6L18 18M6 18L18 6"></path>
             </svg>
           </div>
-          <span>Stop Auto Refresh</span>
+          <span>Stop Refresh</span>
+          <span class="key-hint">Esc</span>
         </button>
+      </div>
+
+      <!-- Preset intervals -->
+      <div class="presets-section">
+        <div class="section-title">Quick Intervals</div>
+        <div class="presets">
+          <button class="preset-button" data-value="5" data-unit="seconds">
+            5s
+          </button>
+          <button class="preset-button" data-value="15" data-unit="seconds">
+            15s
+          </button>
+          <button class="preset-button" data-value="30" data-unit="seconds">
+            30s
+          </button>
+          <button class="preset-button" data-value="1" data-unit="minutes">
+            1m
+          </button>
+          <button class="preset-button" data-value="5" data-unit="minutes">
+            5m
+          </button>
+          <button class="preset-button" data-value="15" data-unit="minutes">
+            15m
+          </button>
+          <button class="preset-button" data-value="1" data-unit="hours">
+            1h
+          </button>
+        </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="settings-section">
-        <div class="settings-title">Refresh Mode</div>
+      <div class="mode-selector">
+        <div id="timeMode" class="mode-option active">Simple</div>
+        <div id="conditionalMode" class="mode-option">Conditional</div>
+      </div>
 
-        <div class="three-mode-selector">
-          <div id="timeMode" class="mode-option active">Simple</div>
-          <div id="conditionalMode" class="mode-option">Conditional</div>
-        </div>
+      <div class="tab-content">
+        <!-- Simple Time-based Mode -->
+        <div id="timeSettings" class="mode-tab active">
+          <div class="form-group">
+            <label for="refreshInterval">Refresh Interval:</label>
+            <div style="display: flex; gap: 8px">
+              <input
+                type="number"
+                id="refreshInterval"
+                class="input-field"
+                min="1"
+                value="30"
+                style="flex: 1"
+              />
+            </div>
+            <div class="hint-text">How often the page should refresh</div>
+          </div>
 
-        <div class="tab-content">
-          <!-- Simple Time-based Mode -->
-          <div id="timeSettings" class="settings-group mode-tab active">
-            <div class="form-group">
-              <label for="refreshInterval">Refresh Interval:</label>
-              <div style="display: flex; gap: 8px">
-                <input
-                  type="number"
-                  id="refreshInterval"
-                  class="input-field"
-                  min="1"
-                  value="30"
-                  style="flex: 1"
-                />
-                <select id="timeUnit" class="input-field" style="width: 120px">
-                  <option value="milliseconds">Milliseconds</option>
-                  <option value="seconds" selected>Seconds</option>
-                  <option value="minutes">Minutes</option>
-                  <option value="hours">Hours</option>
-                </select>
+          <!-- Advanced options collapsible section -->
+          <div class="collapsible-section">
+            <div class="collapsible-header">
+              <span class="collapsible-title">Advanced Options</span>
+              <span class="collapsible-icon">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </div>
+            <div class="collapsible-content">
+              <div class="setting-row">
+                <div class="setting-label">Pause when tab not visible</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="pauseOnBlur" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label">Preserve scroll position</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="preserveScroll" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label">Skip errors (404, 500, etc.)</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="skipErrors" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label">Random interval</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="randomInterval" />
+                  <span class="switch-slider"></span>
+                </label>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Conditional Refresh Mode -->
-          <div id="conditionalSettings" class="settings-group mode-tab hidden">
-            <div class="form-group">
-              <label for="refreshInterval_conditional"
-                >Base Refresh Interval:</label
+        <!-- Conditional Refresh Mode -->
+        <div id="conditionalSettings" class="mode-tab hidden">
+          <div class="form-group">
+            <label for="refreshInterval_conditional"
+              >Base Refresh Interval:</label
+            >
+            <div style="display: flex; gap: 8px">
+              <input
+                type="number"
+                id="refreshInterval_conditional"
+                class="input-field"
+                min="1"
+                value="15"
+                style="flex: 1"
+              />
+              <select
+                id="refreshIntervalUnit_conditional"
+                class="input-field"
+                style="width: 120px"
               >
-              <div style="display: flex; gap: 8px">
-                <input
-                  type="number"
-                  id="refreshInterval_conditional"
-                  class="input-field"
-                  min="1"
-                  value="15"
-                  style="flex: 1"
-                />
-                <select
-                  id="refreshIntervalUnit_conditional"
-                  class="input-field"
-                  style="width: 120px"
-                >
-                  <option value="milliseconds">Milliseconds</option>
-                  <option value="seconds" selected>Seconds</option>
-                  <option value="minutes">Minutes</option>
-                  <option value="hours">Hours</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Refresh Condition:</label>
-              <select id="conditionType" class="input-field">
-                <option value="containsText">Page contains text</option>
-                <option value="notContainsText">
-                  Page does not contain text
-                </option>
-                <option value="textChanged">Text has changed</option>
+                <option value="milliseconds">Milliseconds</option>
+                <option value="seconds" selected>Seconds</option>
+                <option value="minutes">Minutes</option>
+                <option value="hours">Hours</option>
               </select>
             </div>
-            <div class="form-group condition-input">
-              <input
-                type="text"
-                id="conditionValue"
-                class="input-field"
-                placeholder="Enter text to monitor"
-              />
-              <div class="hint-text">
-                Case-insensitive search in the page content
-              </div>
+            <div class="hint-text">How often to check the condition</div>
+          </div>
+
+          <div class="form-group">
+            <label>Refresh Condition:</label>
+            <select id="conditionType" class="input-field">
+              <option value="containsText">Page contains text</option>
+              <option value="notContainsText">
+                Page does not contain text
+              </option>
+              <option value="textChanged">Text has changed</option>
+              <option value="elementExists">Element exists</option>
+              <option value="elementNotExists">Element does not exist</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="conditionValueContainer">
+            <input
+              type="text"
+              id="conditionValue"
+              class="input-field"
+              placeholder="Enter text to monitor"
+            />
+            <div class="hint-text">
+              Case-insensitive search in the page content
             </div>
-            <div class="form-group" id="monitorSelectorContainer">
-              <label for="monitorSelector"
-                >Target Element Selector (optional):</label
-              >
-              <input
-                type="text"
-                id="monitorSelector"
-                class="input-field"
-                placeholder="e.g., #content, .price (leave empty for whole page)"
-              />
-              <div class="hint-text">
-                Limit monitoring to a specific element
-              </div>
-            </div>
+          </div>
+
+          <div class="form-group" id="monitorSelectorContainer">
+            <label for="monitorSelector"
+              >Target Element Selector (optional):</label
+            >
+            <input
+              type="text"
+              id="monitorSelector"
+              class="input-field"
+              placeholder="e.g., #content, .price (leave empty for whole page)"
+            />
+            <div class="hint-text">Limit monitoring to a specific element</div>
+          </div>
+
+          <div class="form-group" id="actionSelectorContainer">
+            <label for="actionSelector">After Condition Met:</label>
+            <select id="actionSelector" class="input-field">
+              <option value="refresh">Refresh page</option>
+              <option value="notify">Show notification</option>
+              <option value="both">Refresh and notify</option>
+              <option value="stop">Stop auto-refresh</option>
+            </select>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Support development section -->
-    <div
-      id="support-dev"
-      class="card"
-      style="
-        background-color: #f5faf0;
-        border-left: 4px solid var(--primary-color);
-      "
-    >
-      <div style="display: flex; align-items: center; gap: 12px">
-        <div style="flex-grow: 1">
-          <h3 style="font-size: 15px; margin-bottom: 4px">
-            Support Development
-          </h3>
-          <p style="font-size: 13px; color: #666">
-            If you find Auto Refresh helpful, consider buying me a coffee!
+    <!-- Sponsorship section -->
+    <div id="sponsorship" class="card sponsorship">
+      <div class="sponsorship-content">
+        <div>
+          <h3 class="sponsor-title">Sponsored By</h3>
+          <p class="sponsor-description">
+            This extension is proudly sponsored by AIVIONLABS. For sponsorship
+            inquiries:
+          </p>
+          <p class="sponsor-contact">
+            Contact: <a href="mailto:nxan2911@gmail.com">nxan2911@gmail.com</a>
           </p>
         </div>
-        <a
-          id="bmc-button"
-          href="https://www.buymeacoffee.com/nxan2911i"
-          target="_blank"
-          class="btn btn-primary"
-          style="
-            width: auto;
-            margin: 0;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-          "
-        >
-          <img
-            src="icons/coffee-cup.svg"
-            width="20"
-            height="20"
-            style="margin-right: 8px"
-            alt="Coffee cup"
-          />
-          <span>Buy me a coffee</span>
-        </a>
+        <div class="sponsor-buttons">
+          <a
+            id="sponsor-button"
+            href="https://aivionlabs.netlify.app"
+            target="_blank"
+            class="btn btn-primary sponsor-button"
+          >
+            <span>Visit Website</span>
+          </a>
+          <a
+            id="bmc-button"
+            href="https://www.buymeacoffee.com/nxan2911i"
+            target="_blank"
+            class="btn btn-success sponsor-button"
+          >
+            <img
+              src="icons/coffee-cup.svg"
+              width="20"
+              height="20"
+              style="margin-right: 6px"
+              alt="Coffee cup"
+            />
+            <span>Buy me a coffee</span>
+          </a>
+        </div>
       </div>
     </div>
 
-    <!-- Add legal links -->
+    <!-- Legal links -->
     <div class="legal-links">
       <a href="terms.html" target="_blank">Terms</a> |
       <a href="privacy.html" target="_blank">Privacy</a> |
-      <a href="refund.html" target="_blank">Refunds</a>
+      <a href="feedback.html" target="_blank">Report an Issue</a>
     </div>
 
     <link rel="stylesheet" href="ad-styles.css" />
     <script src="sidepanel.js"></script>
-    <!-- Remove translations.js reference -->
-    <!-- <script src="translations.js"></script> -->
     <script type="module" src="monetization.js"></script>
   </body>
 </html>

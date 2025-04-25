@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     'icons/settings-gear.svg',
     'terms.html',
     'privacy.html',
-    'refund.html',
     'ad-styles.css'
   ];
   

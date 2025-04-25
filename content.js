@@ -8,6 +8,26 @@ let formsWithChanges = new Set();
 // Track which resources have changed since monitoring started
 const changedResourcesTracker = new Set();
 
+// Helper function to safely send messages to the extension
+function sendMessageSafely(message) {
+    return new Promise((resolve) => {
+        try {
+            chrome.runtime.sendMessage(message, (response) => {
+                if (chrome.runtime.lastError) {
+                    // Handle error silently - this is expected when receiver isn't listening
+                    console.log('Message sending error (expected):', chrome.runtime.lastError.message);
+                    resolve(null);
+                } else {
+                    resolve(response);
+                }
+            });
+        } catch (err) {
+            console.log('Error sending message:', err);
+            resolve(null);
+        }
+    });
+}
+
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'startResourceMonitoring') {
@@ -115,14 +135,14 @@ function checkResourcesForChanges() {
                 if (formProtectionEnabled && formsWithChanges.size > 0) {
                     console.log('Refresh prevented due to unsaved form changes');
                     
-                    // Notify the user about the pending refresh
-                    chrome.runtime.sendMessage({
+                    // Use the safe messaging function
+                    sendMessageSafely({
                         action: 'refreshPending',
                         reason: 'Resource updated but forms have unsaved changes'
                     });
                 } else {
-                    // Safe to refresh
-                    chrome.runtime.sendMessage({
+                    // Safe to refresh - use the safe messaging function
+                    sendMessageSafely({
                         action: 'resourceChanged',
                         url: url
                     });
@@ -181,8 +201,8 @@ function handleFormInput(event) {
     if (form) {
         formsWithChanges.add(form);
         
-        // Notify the extension about form state
-        chrome.runtime.sendMessage({
+        // Use the safe messaging function
+        sendMessageSafely({
             action: 'formStateChanged',
             hasUnsavedChanges: true,
             formCount: formsWithChanges.size
@@ -198,7 +218,7 @@ function handleFormChange(event) {
     if (form) {
         formsWithChanges.add(form);
         
-        chrome.runtime.sendMessage({
+        sendMessageSafely({
             action: 'formStateChanged',
             hasUnsavedChanges: true,
             formCount: formsWithChanges.size
@@ -212,8 +232,8 @@ function handleFormSubmit(event) {
     // Remove the form from our unsaved changes set
     formsWithChanges.delete(event.target);
     
-    // Notify the extension
-    chrome.runtime.sendMessage({
+    // Use the safe messaging function
+    sendMessageSafely({
         action: 'formStateChanged',
         hasUnsavedChanges: formsWithChanges.size > 0,
         formCount: formsWithChanges.size
@@ -223,21 +243,25 @@ function handleFormSubmit(event) {
 // Initialize when content script loads
 function initialize() {
     // Check if we should restore monitoring based on extension state
-    chrome.runtime.sendMessage({ action: 'getContentScriptState' }, response => {
-        // Handle chrome.runtime.lastError to prevent uncaught errors
-        if (chrome.runtime.lastError) {
-            console.warn('Failed to get content script state:', chrome.runtime.lastError.message);
-            return;
-        }
-        
-        if (response && response.resourceMonitoring) {
-            startResourceMonitoring(response.monitoredResources);
-        }
-        
-        if (response && response.formProtection) {
-            enableFormProtection();
-        }
-    });
+    try {
+        chrome.runtime.sendMessage({ action: 'getContentScriptState' }, response => {
+            // Handle chrome.runtime.lastError to prevent uncaught errors
+            if (chrome.runtime.lastError) {
+                console.warn('Failed to get content script state:', chrome.runtime.lastError.message);
+                return;
+            }
+            
+            if (response && response.resourceMonitoring) {
+                startResourceMonitoring(response.monitoredResources);
+            }
+            
+            if (response && response.formProtection) {
+                enableFormProtection();
+            }
+        });
+    } catch (err) {
+        console.warn('Error during initialize:', err);
+    }
 }
 
 initialize();
